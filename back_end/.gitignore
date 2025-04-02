@@ -26,5 +26,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+.DS_Store
 
 run-on-mac.doc
