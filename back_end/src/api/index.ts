@@ -1,3 +1,9 @@
+import express from 'express'
+import authRouter from '../api/auth/auth.router'
+import employeeRouter from '../api/employee/employee.router'
+const router = express.Router();
 
-const apiRouter = 1;
-export default apiRouter
+router.use('/auth', authRouter)
+router.use('/employee', employeeRouter)
+
+export default router
