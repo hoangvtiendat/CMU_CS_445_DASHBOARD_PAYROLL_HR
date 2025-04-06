@@ -85,7 +85,7 @@ export const authApi = {
 
   logout: (): Promise<ApiResponse<null>> => apiRequest<null>("/auth/logout", "POST"),
 
-  getCurrentUser: (): Promise<ApiResponse<LoginResponse["user"]>> => apiRequest<LoginResponse["user"]>("/auth/me"),
+  getCurrentUser: (): Promise<ApiResponse<LoginResponse>> => apiRequest<LoginResponse>("/auth/me"),
 }
 
 // Employee APIs

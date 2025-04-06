@@ -12,14 +12,17 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-  user: {
-    id: number
-    username: string
-    fullName: string
-    email: string
-    role: "Employee" | "Hr" | "Payroll" | "Admin"
+  data: {
+    user: {
+      id: number
+      username: string
+      fullName: string
+      email: string
+      role: "Employee" | "Hr" | "Payroll" | "Admin"
+    }
+    token: string
   }
-  token: string
+
 }
 
 // Employee types

@@ -68,7 +68,7 @@ export function LoginForm() {
 
       toast({
         title: "Login successful",
-        description: `Welcome back, ${response.data.user.fullName}!`,
+        description: `Welcome back, ${response.data.data.user.fullName}!`,
       })
     } catch (error) {
       toast({
