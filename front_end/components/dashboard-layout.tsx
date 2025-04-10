@@ -1,6 +1,8 @@
-import type { ReactNode } from "react"
+import React, { ReactNode } from "react"
 import { Sidebar } from "@/components/sidebar"
 import { Header } from "@/components/header"
+import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 
 interface DashboardLayoutProps {
   children: ReactNode
@@ -9,6 +11,32 @@ interface DashboardLayoutProps {
 }
 
 export function DashboardLayout({ children, role, userName }: DashboardLayoutProps) {
+  // const router = useRouter()
+
+  // const token = localStorage.getItem("token")  // Lấy token từ localStorage
+  // const realRole = role  // Lấy role từ localStorage (nếu đã lưu)
+
+  // if (!token) {
+  //   router.push("/")  // Nếu không có token hoặc role không phải Admin, chuyển hướng về trang login
+  //   return
+  // }
+
+  const router = useRouter()
+  const [token, setToken] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token")
+    if (!storedToken) {
+      router.push("/")  // Nếu không có token → redirect
+    } else {
+      setToken(storedToken)
+    }
+    setIsLoading(false)
+  }, [router])
+
+  if (isLoading) return null // Hoặc loading spinner nếu thích
+
   return (
     <div className="flex min-h-screen flex-col md:flex-row">
       <Sidebar role={role} />
@@ -19,4 +47,6 @@ export function DashboardLayout({ children, role, userName }: DashboardLayoutPro
     </div>
   )
 }
+
+// Removed conflicting local useEffect declaration
 

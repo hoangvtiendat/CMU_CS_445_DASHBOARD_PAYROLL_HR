@@ -51,12 +51,17 @@ export default function EmployeesPage() {
       setIsLoading(true)
       try {
         // Fetch employees
+        console.log(1)
         const employeesResponse = await employeeApi.getAll()
+        console.log(employeesResponse)
         if (!employeesResponse.success || !employeesResponse.data) {
           throw new Error(employeesResponse.error || "Failed to fetch employees")
         }
-        setEmployees(employeesResponse.data)
-
+        console.log(2)
+        console.log(" employeesResponse.data.data", employeesResponse.data.data)
+        setEmployees(
+          employeesResponse.data?.data ?? []
+        )
         // Fetch departments
         const departmentsResponse = await departmentApi.getAll()
         if (!departmentsResponse.success || !departmentsResponse.data) {
@@ -78,78 +83,36 @@ export default function EmployeesPage() {
         })
 
         // Set mock data if API fails
-        setEmployees([
-          {
-            id: 1,
-            fullName: "John Doe",
-            dateOfBirth: "1985-05-15",
-            gender: "Male",
-            phoneNumber: "+1 (555) 123-4567",
-            email: "john.doe@example.com",
-            hireDate: "2020-01-10",
-            departmentId: 1,
-            department: "Engineering",
-            positionId: 1,
-            position: "Software Developer",
-            status: "Active",
-          },
-          {
-            id: 2,
-            fullName: "Jane Smith",
-            dateOfBirth: "1990-08-22",
-            gender: "Female",
-            phoneNumber: "+1 (555) 987-6543",
-            email: "jane.smith@example.com",
-            hireDate: "2019-03-15",
-            departmentId: 2,
-            department: "Marketing",
-            positionId: 3,
-            position: "Marketing Manager",
-            status: "Active",
-          },
-          {
-            id: 3,
-            fullName: "Robert Johnson",
-            dateOfBirth: "1988-11-30",
-            gender: "Male",
-            phoneNumber: "+1 (555) 456-7890",
-            email: "robert.johnson@example.com",
-            hireDate: "2021-05-20",
-            departmentId: 3,
-            department: "Sales",
-            positionId: 5,
-            position: "Sales Representative",
-            status: "Active",
-          },
-          {
-            id: 4,
-            fullName: "Emily Davis",
-            dateOfBirth: "1992-02-10",
-            gender: "Female",
-            phoneNumber: "+1 (555) 234-5678",
-            email: "emily.davis@example.com",
-            hireDate: "2018-09-05",
-            departmentId: 4,
-            department: "HR",
-            positionId: 7,
-            position: "HR Specialist",
-            status: "On Leave",
-          },
-          {
-            id: 5,
-            fullName: "Michael Wilson",
-            dateOfBirth: "1987-07-18",
-            gender: "Male",
-            phoneNumber: "+1 (555) 876-5432",
-            email: "michael.wilson@example.com",
-            hireDate: "2022-01-15",
-            departmentId: 1,
-            department: "Engineering",
-            positionId: 2,
-            position: "QA Engineer",
-            status: "Probation",
-          },
-        ])
+        // setEmployees([
+        //   {
+        //     EmployeeID: 1,
+        //     FullName: "John Doe",
+        //     DateOfBirth: "1985-05-15",
+        //     gender: "Male", 
+        //     phoneNumber: "+1 (555) 123-4567",
+        //     email: "john.doe@example.com",
+        //     hireDate: "2020-01-10",
+        //     departmentId: 1,
+        //     department: "Engineering",
+        //     positionId: 1,
+        //     position: "Software Developer",
+        //     status: "Active",
+        //   },
+        //   {
+        //     EmployeeID: 2,
+        //     FullName: "Jane Smith",
+        //     DateOfBirth: "1990-08-22",
+        //     gender: "Female",
+        //     phoneNumber: "+1 (555) 987-6543",
+        //     email: "jane.smith@example.com",
+        //     hireDate: "2019-03-15",
+        //     departmentId: 2,
+        //     department: "Marketing",
+        //     positionId: 3,
+        //     position: "Marketing Manager",
+        //     status: "Active",
+        //   },
+        // ])
 
         setDepartments([
           { id: 1, name: "Engineering" },
@@ -203,7 +166,7 @@ export default function EmployeesPage() {
         positionId: Number(newEmployee.positionId),
       }
 
-      let response
+      let response: { success: boolean; data?: Employee; error?: string }
 
       if (isEditing && editingEmployeeId) {
         // Update existing employee
@@ -217,7 +180,9 @@ export default function EmployeesPage() {
         }
 
         // Update the employee in the list
-        setEmployees(employees.map((employee) => (employee.id === editingEmployeeId ? response.data! : employee)))
+        // setEmployees(employees.map((employee) => (employee.data.data.EmployeeID === editingEmployeeId ? response.data! : employee)))
+        setEmployees(employees.map((employee) => (employee.EmployeeID === editingEmployeeId ? response.data! : employee)))
+
 
         toast({
           title: "Employee updated",
@@ -268,52 +233,51 @@ export default function EmployeesPage() {
   // Column definitions for the employees table
   const columns = [
     {
-      accessorKey: "id",
+      accessorKey: "EmployeeID",
       header: "ID",
     },
     {
-      accessorKey: "fullName",
+      accessorKey: "FullName",
       header: "Full Name",
     },
     {
-      accessorKey: "email",
+      accessorKey: "Email",
       header: "Email",
     },
     {
-      accessorKey: "dateOfBirth",
+      accessorKey: "DateOfBirth",
       header: "Date of Birth",
     },
     {
-      accessorKey: "phoneNumber",
+      accessorKey: "PhoneNumber",
       header: "Phone Number",
     },
     {
-      accessorKey: "gender",
+      accessorKey: "Gender",
       header: "Gender",
     },
     {
-      accessorKey: "hireDate",
+      accessorKey: "HireDate",
       header: "Hire Date",
     },
     {
-      accessorKey: "department",
+      accessorKey: "Department.DepartmentName",
       header: "Department",
     },
     {
-      accessorKey: "position",
+      accessorKey: "Position.PositionName",
       header: "Position",
     },
     {
       accessorKey: "status",
       header: "Status",
-      cell: ({ row }) => {
+      cell: ({ row }: { row: { getValue: (key: string) => unknown } }) => {
         const status = row.getValue("status") as string
         return (
           <div className="flex items-center">
             <span
-              className={`mr-2 h-2 w-2 rounded-full ${
-                status === "Active" ? "bg-green-500" : status === "On Leave" ? "bg-yellow-500" : "bg-red-500"
-              }`}
+              className={`mr-2 h-2 w-2 rounded-full ${status === "Active" ? "bg-green-500" : status === "On Leave" ? "bg-yellow-500" : "bg-red-500"
+                }`}
             />
             {status}
           </div>
@@ -322,7 +286,7 @@ export default function EmployeesPage() {
     },
     {
       id: "actions",
-      cell: ({ row }) => {
+      cell: ({ row }: { row: { original: Employee } }) => {
         const employee = row.original as Employee
         return (
           <div className="flex items-center gap-2">
@@ -345,8 +309,8 @@ export default function EmployeesPage() {
 
     // Set the form values
     setNewEmployee({
-      fullName: employeeToEdit.fullName,
-      dateOfBirth: employeeToEdit.dateOfBirth,
+      fullName: employeeToEdit.FullName,
+      dateOfBirth: employeeToEdit.DateOfBirth,
       gender: employeeToEdit.gender,
       phoneNumber: employeeToEdit.phoneNumber,
       email: employeeToEdit.email,
@@ -431,7 +395,7 @@ export default function EmployeesPage() {
               <div className="grid gap-4 py-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="fullName">Full Name</Label>
+                    <Label htmlFor="FullName">Full Name</Label>
                     <Input id="fullName" name="fullName" value={newEmployee.fullName} onChange={handleInputChange} />
                   </div>
                   <div className="space-y-2">

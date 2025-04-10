@@ -42,10 +42,13 @@ export function LoginForm() {
         username: values.username,
         password: values.password,
       })
+      console.log("respon: ", response)
 
       if (!response.success || !response.data) {
+        console.log('fail')
         throw new Error(response.error || "Login failed")
       }
+
 
 
 
@@ -82,10 +85,26 @@ export function LoginForm() {
   }
 
   // For demo purposes only - in a real app, this would be removed
-  const handleDemoLogin = (role: string) => {
-    form.setValue("username", role)
-    form.setValue("password", "password123")
+  const handleDemoLoginAdmin = (role: string) => {
+    form.setValue("username", 'admin')
+    form.setValue("password", '123456')
   }
+
+  const handleDemoLoginEmployee = (role: string) => {
+    form.setValue("username", 'employee')
+    form.setValue("password", '123456')
+  }
+
+  const handleDemoLoginHR = (role: string) => {
+    form.setValue("username", 'hrhrhr')
+    form.setValue("password", '123456')
+  }
+
+  const handleDemoLoginPayroll = (role: string) => {
+    form.setValue("username", 'payroll')
+    form.setValue("password", '123456')
+  }
+
 
   return (
     <Form {...form}>
@@ -126,7 +145,7 @@ export function LoginForm() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => handleDemoLogin("employee")}
+            onClick={() => handleDemoLoginEmployee("employee")}
             className="border-business-primary/30 text-business-primary hover:bg-business-primary/10"
           >
             Employee
@@ -134,7 +153,7 @@ export function LoginForm() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => handleDemoLogin("hr")}
+            onClick={() => handleDemoLoginHR("hr")}
             className="border-business-secondary/30 text-business-secondary hover:bg-business-secondary/10"
           >
             HR Manager
@@ -142,7 +161,7 @@ export function LoginForm() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => handleDemoLogin("payroll")}
+            onClick={() => handleDemoLoginPayroll("payroll")}
             className="border-business-accent/30 text-business-accent hover:bg-business-accent/10"
           >
             Payroll
@@ -150,7 +169,7 @@ export function LoginForm() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => handleDemoLogin("admin")}
+            onClick={() => handleDemoLoginAdmin("admin")}
             className="border-business-dark/30 text-business-dark hover:bg-business-dark/10"
           >
             Admin

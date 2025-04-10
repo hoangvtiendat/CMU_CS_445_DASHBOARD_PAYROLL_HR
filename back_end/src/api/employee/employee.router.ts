@@ -3,10 +3,10 @@ import { Router } from 'express';
 import { EmployeeController } from './employee.controller';
 
 
-const authRouter = Router();
+const empolyeeRouter = Router();
 
 
 
-authRouter.get('/', EmployeeController.getAll);
+empolyeeRouter.get('/', EmployeeController.getAll);
 
-export default authRouter;
+export default empolyeeRouter;

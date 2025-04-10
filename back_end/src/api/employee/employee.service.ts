@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 
 // import { Users } from '../../model/users.entity';
-import { userRepository } from '../auth/userRepository';
+import { employeeRepository } from './employeeRepository';
 import {
     ServiceResponse,
     ResponseStatus,
@@ -12,7 +12,8 @@ import { Login, Token } from '../auth/auth.interface';
 import { calculateUnixTime } from '../services/caculateDatetime';
 // import mailService from '../../services/sendEmail';
 import { verify } from 'crypto';
-import { Account } from '../../model/account.entity'
+import { MySQLEmployee } from '../../model/mysql/employee.entity';
+import { MSSQLEmployee } from '../../model/mssql/employee.entity';
 
 
 
@@ -22,10 +23,10 @@ import { handleServiceResponse } from '../services/httpHandlerResponse';
 
 export const EmployeeService = {
 
-    getAll: async (): Promise<ServiceResponse<Account[] | null>> => {
+    getAll: async (): Promise<ServiceResponse<MySQLEmployee[] | MSSQLEmployee[] | null>> => {
         try {
-            const users = await userRepository.getAll();
-            return new ServiceResponse<Account[]>(
+            const users = await employeeRepository.getAll();
+            return new ServiceResponse<MySQLEmployee[] | MSSQLEmployee[] >(
                 ResponseStatus.Success,
                 'User found',
                 users ?? [],

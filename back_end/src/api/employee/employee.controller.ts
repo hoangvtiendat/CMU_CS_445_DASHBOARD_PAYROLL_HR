@@ -5,7 +5,7 @@ import { ResponseStatus } from '../services/serviceResponse';
 // import { Login } from './auth.interface';
 import { handleServiceResponse } from '../services/httpHandlerResponse';
 import passport from 'passport'
-import { Account } from '../../model/account.entity'
+
 interface UserProfile {
     id: string;
     tokenLogin: string;

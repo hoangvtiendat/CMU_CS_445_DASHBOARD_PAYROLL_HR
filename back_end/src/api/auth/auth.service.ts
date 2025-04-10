@@ -12,7 +12,7 @@ import { Login, Token, LoginResponse } from '../auth/auth.interface';
 import { calculateUnixTime } from '../services/caculateDatetime';
 // import mailService from '../../services/sendEmail';
 import { verify } from 'crypto';
-import { Account } from '../../model/account.entity'
+import { MySQLAccount } from '../../model/mysql/account.entity'
 
 
 
@@ -24,7 +24,10 @@ export const authService = {
 
     login: async (loginData: Login): Promise<ServiceResponse<LoginResponse | null>> => {
         try {
+            console.log(loginData.username)
             const user = await userRepository.findByUsername(loginData.username);
+            console.log(2)
+
             if (!user) {
                 return new ServiceResponse(
                     ResponseStatus.Failed,
@@ -33,15 +36,14 @@ export const authService = {
                     StatusCodes.NOT_FOUND
                 );
             }
-           if(user.Password !== loginData.password)
-           {
-            return new ServiceResponse(
-                ResponseStatus.Failed,
-                'Password incorrect',
-                null,
-                StatusCodes.NOT_FOUND
-            );
-           }
+            if (user.Password !== loginData.password) {
+                return new ServiceResponse(
+                    ResponseStatus.Failed,
+                    'Password incorrect',
+                    null,
+                    StatusCodes.NOT_FOUND
+                );
+            }
             const token: Token = {
                 accessToken: generateJwt({ userId: user.Id }),
                 refreshToken: generateJwt({ userId: user.Id }),
@@ -55,11 +57,11 @@ export const authService = {
                     username: user.Username,
                     fullName: user.FullName,
                     email: user.Email,
-                    role: user.Role as "Employee" | "Hr" | "Payroll" | "Admin", 
+                    role: user.Role as "Employee" | "Hr" | "Payroll" | "Admin",
                 },
                 token: token.accessToken,
-                
-              };
+
+            };
             return new ServiceResponse<LoginResponse>(
                 ResponseStatus.Success,
                 'Login successful',
@@ -77,7 +79,7 @@ export const authService = {
         }
     },
 
-    register: async (userData: Account): Promise<ServiceResponse<Account | null>> => {
+    register: async (userData: MySQLAccount): Promise<ServiceResponse<MySQLAccount | null>> => {
         try {
             const username = await userRepository.findByUsername(userData.Username);
             if (username) {
@@ -94,7 +96,7 @@ export const authService = {
                 throw new Error("Error create user")
             }
 
-            return new ServiceResponse<Account>(
+            return new ServiceResponse<MySQLAccount>(
                 ResponseStatus.Success,
                 'User registered successfully!',
                 newUser,

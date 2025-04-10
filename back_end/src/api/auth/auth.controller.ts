@@ -5,7 +5,7 @@ import { ResponseStatus } from '../services/serviceResponse';
 import { Login } from './auth.interface';
 import { handleServiceResponse } from '../services/httpHandlerResponse';
 import passport from 'passport'
-import {Account} from '../../model/account.entity'
+import {MySQLAccount} from '../../model/mysql/account.entity'
 interface UserProfile {
   id: string;
   tokenLogin: string;
@@ -33,7 +33,7 @@ export const AuthController = {
 
   async register(req: Request, res: Response) {
     try {
-      const userData: Account = req.body;
+      const userData: MySQLAccount = req.body;
       const serviceResponse = await authService.register(userData);
       handleServiceResponse(serviceResponse, res);
     }

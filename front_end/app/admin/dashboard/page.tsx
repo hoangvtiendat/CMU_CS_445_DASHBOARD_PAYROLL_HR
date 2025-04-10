@@ -9,6 +9,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import { dashboardApi, alertApi } from "@/lib/api"
 import type { EmployeeStats, PayrollStats, Alert } from "@/lib/api-types"
 import { useToast } from "@/components/ui/use-toast"
+import { useRouter } from "next/navigation"
 
 export default function AdminDashboard() {
   const { toast } = useToast()
@@ -16,8 +17,16 @@ export default function AdminDashboard() {
   const [payrollStats, setPayrollStats] = useState<PayrollStats | null>(null)
   const [alerts, setAlerts] = useState<Alert[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const router = useRouter()
 
   useEffect(() => {
+    // const token = localStorage.getItem("token")  // Lấy token từ localStorage
+    // const role = localStorage.getItem("role")  // Lấy role từ localStorage (nếu đã lưu)
+
+    // if (!token || role !== "Admin") {
+    //   router.push("/login")  // Nếu không có token hoặc role không phải Admin, chuyển hướng về trang login
+    //   return
+    // }
     const fetchData = async () => {
       setIsLoading(true)
       try {

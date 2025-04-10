@@ -27,18 +27,23 @@ export interface LoginResponse {
 
 // Employee types
 export interface Employee {
-  id: number
-  fullName: string
-  dateOfBirth: string
-  gender: string
-  phoneNumber: string
-  email: string
-  hireDate: string
-  departmentId: number
-  department: string
-  positionId: number
-  position: string
-  status: string
+
+
+    EmployeeID: number
+    FullName: string
+    DateOfBirth: string
+    gender: string
+    phoneNumber: string
+    email: string
+    hireDate: string
+    departmentId: number
+    department: string
+    positionId: number
+    position: string
+    status: string
+
+
+
 }
 
 export interface CreateEmployeeRequest {

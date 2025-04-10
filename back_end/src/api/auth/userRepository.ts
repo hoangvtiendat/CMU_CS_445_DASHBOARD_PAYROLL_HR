@@ -1,37 +1,38 @@
-import { Account } from '../../model/account.entity';
-import dataSource from '../../config/typeorm.config';
+import { MySQLAccount } from '../../model/mysql/account.entity';
 
+import {MSSQLDataSource, MySQLDataSource} from '../../config/typeorm.config';
 
+const mysqlRepository = MySQLDataSource.getRepository(MySQLAccount);
 
-export const userRepository = dataSource.getRepository(Account).extend({
-    async findAllAsync(): Promise<Account[]> {
+export const userRepository = MySQLDataSource.getRepository(MySQLAccount).extend({
+    async findAllAsync(): Promise<MySQLAccount[]> {
         return this.find();
     },
 
-    async findByIdAsync(id: number): Promise<Account | null> {
+    async findByIdAsync(id: number): Promise<MySQLAccount | null> {
         return this.findOneBy({ Id: id });
     },
 
-    async createUserAsync(userData: Partial<Account>): Promise<Account> {
+    async createUserAsync(userData: Partial<MySQLAccount>): Promise<MySQLAccount> {
         const newUser = this.create(userData);
         return this.save(newUser);
     },
 
-    async findByUsername(username: string): Promise<Account | null> {
+    async findByUsername(username: string): Promise<MySQLAccount | null> {
         return this.findOneBy({ Username: username })
     },
-    async findByEmail(email: string): Promise<Account | null> {
+    async findByEmail(email: string): Promise<MySQLAccount | null> {
         return this.findOneBy({ Email: email })
     },
     async updateUserAsync(
         id: number,
-        updateData: Partial<Account>
-    ): Promise<Account | null> {
+        updateData: Partial<MySQLAccount>
+    ): Promise<MySQLAccount | null> {
         await this.update(id, updateData);
         return this.findOneBy({ Id: id });
     },
 
-    async getAll(): Promise<Account[] | null> {
+    async getAll(): Promise<MySQLAccount[] | null> {
         return this.find();
     }
 
