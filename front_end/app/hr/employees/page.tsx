@@ -280,14 +280,14 @@ export default function EmployeesPage() {
       header: "Position",
     },
     {
-      accessorKey: "status",
+      accessorKey: "Status",
       header: "Status",
       cell: ({ row }: { row: { getValue: (key: string) => unknown } }) => {
-        const status = row.getValue("status") as string
+        const status = row.getValue("Status") as string
         return (
           <div className="flex items-center">
             <span
-              className={`mr-2 h-2 w-2 rounded-full ${status === "Active" ? "bg-green-500" : status === "On Leave" ? "bg-yellow-500" : "bg-red-500"
+              className={`mr-2 h-2 w-2 rounded-full ${status === "FULL TIME" ? "bg-green-500" : status === "PART TIME" ? "bg-yellow-500" : "bg-red-500"
                 }`}
             />
             {status}
