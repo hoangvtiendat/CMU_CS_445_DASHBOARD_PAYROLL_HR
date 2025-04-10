@@ -1,8 +1,11 @@
 // Common response type for all API calls
 export interface ApiResponse<T> {
-  success: boolean
-  data?: T
-  error?: string
+  success: boolean;
+  data: {
+    data: T | null;
+    status: string;
+  };
+  error?: string;
 }
 
 // Authentication types
@@ -29,18 +32,19 @@ export interface LoginResponse {
 export interface Employee {
 
 
-    EmployeeID: number
-    FullName: string
-    DateOfBirth: string
-    gender: string
-    phoneNumber: string
-    email: string
-    hireDate: string
-    departmentId: number
-    department: string
-    positionId: number
-    position: string
-    status: string
+  EmployeeID: number
+  FullName: string
+  DateOfBirth: string
+  gender: string
+  phoneNumber: string
+  email: string
+  hireDate: string
+  departmentId: number
+  department: string
+  positionId: number
+  position: string
+  status: string
+
 
 
 

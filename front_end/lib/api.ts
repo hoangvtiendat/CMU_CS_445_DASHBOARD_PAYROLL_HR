@@ -28,6 +28,7 @@ async function handleResponse<T>(response: Response): Promise<ApiResponse<T>> {
     const errorData = await response.json()
     return {
       success: false,
+      data: { data: null, status: "error" },
       error: errorData.message || "An error occurred",
     }
   }
@@ -73,6 +74,7 @@ async function apiRequest<T>(
   } catch (error) {
     return {
       success: false,
+      data: { data: null, status: "error" },
       error: error instanceof Error ? error.message : "An unknown error occurred",
     }
   }

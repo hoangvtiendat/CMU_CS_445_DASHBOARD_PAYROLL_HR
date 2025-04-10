@@ -60,21 +60,21 @@ export default function EmployeesPage() {
         console.log(2)
         console.log(" employeesResponse.data.data", employeesResponse.data.data)
         setEmployees(
-          employeesResponse.data?.data ?? []
+          employeesResponse.data.data ?? []
         )
         // Fetch departments
         const departmentsResponse = await departmentApi.getAll()
         if (!departmentsResponse.success || !departmentsResponse.data) {
           throw new Error(departmentsResponse.error || "Failed to fetch departments")
         }
-        setDepartments(departmentsResponse.data)
+        setDepartments(departmentsResponse.data?.data ?? [])
 
         // Fetch positions
         const positionsResponse = await positionApi.getAll()
         if (!positionsResponse.success || !positionsResponse.data) {
           throw new Error(positionsResponse.error || "Failed to fetch positions")
         }
-        setPositions(positionsResponse.data)
+        setPositions(positionsResponse.data?.data ?? [])
       } catch (error) {
         toast({
           variant: "destructive",
@@ -170,10 +170,16 @@ export default function EmployeesPage() {
 
       if (isEditing && editingEmployeeId) {
         // Update existing employee
-        response = await employeeApi.update({
+        const apiResponse = await employeeApi.update({
           id: editingEmployeeId,
           ...employeeData,
         })
+
+        response = {
+          success: apiResponse.success,
+          data: apiResponse.data?.data || undefined,
+          error: apiResponse.error,
+        }
 
         if (!response.success) {
           throw new Error(response.error || "Failed to update employee")
@@ -190,7 +196,12 @@ export default function EmployeesPage() {
         })
       } else {
         // Create new employee
-        response = await employeeApi.create(employeeData)
+        const apiResponse = await employeeApi.create(employeeData)
+        response = {
+          success: apiResponse.success,
+          data: apiResponse.data?.data || undefined,
+          error: apiResponse.error,
+        }
 
         if (!response.success) {
           throw new Error(response.error || "Failed to add employee")
@@ -290,10 +301,10 @@ export default function EmployeesPage() {
         const employee = row.original as Employee
         return (
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" onClick={() => handleEditEmployee(employee.id)}>
+            <Button variant="ghost" size="icon" onClick={() => handleEditEmployee(employee.EmployeeID)}>
               <Edit className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={() => handleDeleteEmployee(employee.id)}>
+            <Button variant="ghost" size="icon" onClick={() => handleDeleteEmployee(employee.EmployeeID)}>
               <Trash2 className="h-4 w-4" />
             </Button>
           </div>
@@ -304,7 +315,7 @@ export default function EmployeesPage() {
 
   const handleEditEmployee = (id: number) => {
     // Find the employee to edit
-    const employeeToEdit = employees.find((employee) => employee.id === id)
+    const employeeToEdit = employees.find((employee) => employee.EmployeeID === id)
     if (!employeeToEdit) return
 
     // Set the form values
@@ -335,7 +346,7 @@ export default function EmployeesPage() {
       }
 
       // Remove the deleted employee from the list
-      setEmployees(employees.filter((employee) => employee.id !== id))
+      setEmployees(employees.filter((employee) => employee.EmployeeID !== id))
 
       toast({
         title: "Employee deleted",
@@ -519,7 +530,7 @@ export default function EmployeesPage() {
             <DataTable
               columns={columns}
               data={employees}
-              searchColumn="fullName"
+              searchColumn="FullName"
               searchPlaceholder="Search by name..."
             />
           </CardContent>

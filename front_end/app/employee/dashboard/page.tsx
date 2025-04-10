@@ -20,7 +20,7 @@ const columns = [
   {
     accessorKey: "baseSalary",
     header: "Base Salary",
-    cell: ({ row }) => {
+    cell: ({ row }: { row: { getValue: (key: string) => string } }) => {
       const amount = Number.parseFloat(row.getValue("baseSalary"))
       const formatted = new Intl.NumberFormat("en-US", {
         style: "currency",
@@ -32,7 +32,7 @@ const columns = [
   {
     accessorKey: "bonus",
     header: "Bonus",
-    cell: ({ row }) => {
+    cell: ({ row }: { row: { getValue: (key: string) => string } }) => {
       const amount = Number.parseFloat(row.getValue("bonus"))
       const formatted = new Intl.NumberFormat("en-US", {
         style: "currency",
@@ -44,7 +44,7 @@ const columns = [
   {
     accessorKey: "deductions",
     header: "Deductions",
-    cell: ({ row }) => {
+    cell: ({ row }: { row: { getValue: (key: string) => string } }) => {
       const amount = Number.parseFloat(row.getValue("deductions"))
       const formatted = new Intl.NumberFormat("en-US", {
         style: "currency",
@@ -56,7 +56,7 @@ const columns = [
   {
     accessorKey: "netSalary",
     header: "Net Salary",
-    cell: ({ row }) => {
+    cell: ({ row }: { row: { getValue: (key: string) => string } }) => {
       const amount = Number.parseFloat(row.getValue("netSalary"))
       const formatted = new Intl.NumberFormat("en-US", {
         style: "currency",
@@ -68,7 +68,7 @@ const columns = [
   {
     accessorKey: "actualSalary",
     header: "Actual Salary Received",
-    cell: ({ row }) => {
+    cell: ({ row }: { row: { getValue: (key: string) => string } }) => {
       const amount = Number.parseFloat(row.getValue("actualSalary"))
       const formatted = new Intl.NumberFormat("en-US", {
         style: "currency",
@@ -97,14 +97,14 @@ export default function EmployeeDashboard() {
         if (!employeeResponse.success || !employeeResponse.data) {
           throw new Error(employeeResponse.error || "Failed to fetch employee data")
         }
-        setEmployee(employeeResponse.data)
+        setEmployee(employeeResponse.data.data)
 
         // Fetch salary data
         const salaryResponse = await salaryApi.getByEmployeeId(employeeId)
         if (!salaryResponse.success || !salaryResponse.data) {
           throw new Error(salaryResponse.error || "Failed to fetch salary data")
         }
-        setSalaryData(salaryResponse.data)
+        setSalaryData(salaryResponse.data?.data || [])
       } catch (error) {
         toast({
           variant: "destructive",
@@ -121,7 +121,7 @@ export default function EmployeeDashboard() {
 
   // Mock data for now - in a real app, this would come from the API
   const employeeData = {
-    name: employee?.fullName || "John Doe",
+    name: employee?.FullName || "John Doe",
     role: "Software Developer",
     department: employee?.department || "Engineering",
     baseSalary: "$5,500.00",
@@ -260,11 +260,11 @@ export default function EmployeeDashboard() {
                 <div className="grid gap-6 md:grid-cols-2">
                   <div>
                     <h3 className="font-medium text-business-dark">Full Name</h3>
-                    <p className="text-muted-foreground">{employee?.fullName || "John Doe"}</p>
+                    <p className="text-muted-foreground">{employee?.FullName || "John Doe"}</p>
                   </div>
                   <div>
                     <h3 className="font-medium text-business-dark">Date of Birth</h3>
-                    <p className="text-muted-foreground">{employee?.dateOfBirth || "15 May 1985"}</p>
+                    <p className="text-muted-foreground">{employee?.DateOfBirth || "15 May 1985"}</p>
                   </div>
                   <div>
                     <h3 className="font-medium text-business-dark">Gender</h3>
