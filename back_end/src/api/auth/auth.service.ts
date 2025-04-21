@@ -24,10 +24,7 @@ export const authService = {
 
     login: async (loginData: Login): Promise<ServiceResponse<LoginResponse | null>> => {
         try {
-            console.log(loginData.username)
             const user = await userRepository.findByUsername(loginData.username);
-            console.log(2)
-
             if (!user) {
                 return new ServiceResponse(
                     ResponseStatus.Failed,

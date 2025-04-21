@@ -123,7 +123,7 @@ export default function EmployeeDashboard() {
   const employeeData = {
     name: employee?.FullName || "John Doe",
     role: "Software Developer",
-    department: employee?.department || "Engineering",
+    department: employee?.Department || "Engineering",
     baseSalary: "$5,500.00",
     ytdEarnings: "$33,080.00",
     lastPayment: "$5,280.00",
@@ -268,31 +268,31 @@ export default function EmployeeDashboard() {
                   </div>
                   <div>
                     <h3 className="font-medium text-business-dark">Gender</h3>
-                    <p className="text-muted-foreground">{employee?.gender || "Male"}</p>
+                    <p className="text-muted-foreground">{employee?.Gender || "Male"}</p>
                   </div>
                   <div>
                     <h3 className="font-medium text-business-dark">Phone Number</h3>
-                    <p className="text-muted-foreground">{employee?.phoneNumber || "+1 (555) 123-4567"}</p>
+                    <p className="text-muted-foreground">{employee?.PhoneNumber || "+1 (555) 123-4567"}</p>
                   </div>
                   <div>
                     <h3 className="font-medium text-business-dark">Email</h3>
-                    <p className="text-muted-foreground">{employee?.email || "john.doe@example.com"}</p>
+                    <p className="text-muted-foreground">{employee?.Email || "john.doe@example.com"}</p>
                   </div>
                   <div>
                     <h3 className="font-medium text-business-dark">Hire Date</h3>
-                    <p className="text-muted-foreground">{employee?.hireDate || "10 Jan 2020"}</p>
+                    <p className="text-muted-foreground">{employee?.HireDate || "10 Jan 2020"}</p>
                   </div>
                   <div>
                     <h3 className="font-medium text-business-dark">Department</h3>
-                    <p className="text-muted-foreground">{employee?.department || "Engineering"}</p>
+                    <p className="text-muted-foreground">{typeof employee?.Department === "string" ? employee.Department : "Engineering"}</p>
                   </div>
                   <div>
                     <h3 className="font-medium text-business-dark">Position</h3>
-                    <p className="text-muted-foreground">{employee?.position || "Software Developer"}</p>
+                    <p className="text-muted-foreground">{employee?.Position?.PositionID || "Software Developer"}</p>
                   </div>
                   <div>
                     <h3 className="font-medium text-business-dark">Status</h3>
-                    <p className="text-muted-foreground">{employee?.status || "Active"}</p>
+                    <p className="text-muted-foreground">{employee?.Status || "Active"}</p>
                   </div>
                 </div>
               </CardContent>

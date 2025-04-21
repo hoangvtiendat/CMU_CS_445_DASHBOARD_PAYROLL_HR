@@ -7,12 +7,6 @@ import {
     ResponseStatus,
 } from '../services/serviceResponse';
 import { StatusCodes } from 'http-status-codes';
-import { generateJwt, verifyJwt } from '../services/jwtService';
-import { Login, Token } from '../auth/auth.interface';
-import { calculateUnixTime } from '../services/caculateDatetime';
-// import mailService from '../../services/sendEmail';
-import { verify } from 'crypto';
-
 import { MySQLDepartment } from '../../model/mysql/department.entity';
 import { MSSQLDepartment } from '../../model/mssql/department.entity';
 

@@ -18,9 +18,7 @@ export const AuthController = {
   async login(req: Request, res: Response) {
     const loginData: Login = req.body;
     try {
-      console.log("Login Request:", loginData);
       const serviceResponse = await authService.login(loginData);
-      console.log("Service Response:", serviceResponse);
       handleServiceResponse(serviceResponse, res);
     } catch (error) {
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({

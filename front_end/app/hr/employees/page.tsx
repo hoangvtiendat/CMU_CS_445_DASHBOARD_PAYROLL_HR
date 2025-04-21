@@ -23,7 +23,6 @@ import { useToast } from "@/components/ui/use-toast"
 import { Edit, Plus, Trash2 } from "lucide-react"
 import { employeeApi, departmentApi, positionApi } from "@/lib/api"
 import type { Employee, Department, Position, CreateEmployeeRequest } from "@/lib/api-types"
-
 export default function EmployeesPage() {
   const { toast } = useToast()
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
@@ -31,16 +30,24 @@ export default function EmployeesPage() {
   const [departments, setDepartments] = useState<Department[]>([])
   const [positions, setPositions] = useState<Position[]>([])
   const [isLoading, setIsLoading] = useState(true)
+
+
+
+
   const [newEmployee, setNewEmployee] = useState<Partial<CreateEmployeeRequest>>({
-    fullName: "",
-    dateOfBirth: "",
-    gender: "",
-    phoneNumber: "",
-    email: "",
-    hireDate: new Date().toISOString().split("T")[0],
-    departmentId: 0,
-    positionId: 0,
-    status: "Active",
+    FullName: "",
+    DateOfBirth: "",
+    Gender: "",
+    PhoneNumber: "",
+    Email: "",
+    HireDate: new Date().toISOString().split("T")[0],
+    Department: {
+      DepartmentID: 1
+    },
+    Position: {
+      PositionID: 1
+    },
+    Status: "FULL TIME",
   })
 
   const [isEditing, setIsEditing] = useState(false)
@@ -51,14 +58,11 @@ export default function EmployeesPage() {
       setIsLoading(true)
       try {
         // Fetch employees
-        console.log(1)
         const employeesResponse = await employeeApi.getAll()
-        console.log(employeesResponse)
         if (!employeesResponse.success || !employeesResponse.data) {
           throw new Error(employeesResponse.error || "Failed to fetch employees")
         }
-        console.log(2)
-        console.log(" employeesResponse.data.data", employeesResponse.data.data)
+
         setEmployees(
           employeesResponse.data.data ?? []
         )
@@ -114,22 +118,22 @@ export default function EmployeesPage() {
         //   },
         // ])
 
-        setDepartments([
-          { id: 1, name: "Engineering" },
-          { id: 2, name: "Marketing" },
-          { id: 3, name: "Sales" },
-          { id: 4, name: "HR" },
-        ])
+        // setDepartments([
+        //   { id: 1, name: "Engineering" },
+        //   { id: 2, name: "Marketing" },
+        //   { id: 3, name: "Sales" },
+        //   { id: 4, name: "HR" },
+        // ])
 
-        setPositions([
-          { id: 1, name: "Software Developer", departmentId: 1 },
-          { id: 2, name: "QA Engineer", departmentId: 1 },
-          { id: 3, name: "Marketing Manager", departmentId: 2 },
-          { id: 4, name: "Marketing Specialist", departmentId: 2 },
-          { id: 5, name: "Sales Representative", departmentId: 3 },
-          { id: 6, name: "Sales Manager", departmentId: 3 },
-          { id: 7, name: "HR Specialist", departmentId: 4 },
-        ])
+        // setPositions([
+        //   { id: 1, name: "Software Developer", departmentId: 1 },
+        //   { id: 2, name: "QA Engineer", departmentId: 1 },
+        //   { id: 3, name: "Marketing Manager", departmentId: 2 },
+        //   { id: 4, name: "Marketing Specialist", departmentId: 2 },
+        //   { id: 5, name: "Sales Representative", departmentId: 3 },
+        //   { id: 6, name: "Sales Manager", departmentId: 3 },
+        //   { id: 7, name: "HR Specialist", departmentId: 4 },
+        // ])
       } finally {
         setIsLoading(false)
       }
@@ -144,28 +148,50 @@ export default function EmployeesPage() {
   }
 
   const handleSelectChange = (name: string, value: string) => {
-    setNewEmployee((prev) => ({ ...prev, [name]: value }))
+    // setNewEmployee((prev) => ({ ...prev, [name]: value }))
+    setNewEmployee((prev) => {
+      switch (name) {
+        case "FullName":
+        case "DateOfBirth":
+        case "Gender":
+        case "PhoneNumber":
+        case "Email":
+        case "HireDate":
+        case "Status":
+          return { ...prev, [name]: value };
+        case "Department.DepartmentID":
+          return { ...prev, Department: { ...prev.Department, DepartmentID: Number(value) } };
+        case "Position.PositionID":
+          return { ...prev, Position: { ...prev.Position, PositionID: Number(value) } };
+        default:
+          return prev; // Trả về state cũ nếu không khớp với trường nào
+      }
+    });
   }
 
   const handleAddEmployee = async () => {
     try {
+      console.log(1)
       // Validate required fields
-      if (!newEmployee.fullName || !newEmployee.email || !newEmployee.departmentId || !newEmployee.positionId) {
+      if (!newEmployee.FullName || !newEmployee.Department?.DepartmentID || !newEmployee.Position?.PositionID) {
+        console.log(2)
         toast({
           variant: "destructive",
           title: "Validation Error",
           description: "Please fill in all required fields.",
         })
+        console.log(3)
         return
       }
 
       // Convert departmentId and positionId to numbers
-      const employeeData = {
+      const employeeData =
+      {
         ...(newEmployee as CreateEmployeeRequest),
-        departmentId: Number(newEmployee.departmentId),
-        positionId: Number(newEmployee.positionId),
+        DepartmentID: Number(newEmployee.Department?.DepartmentID),
+        PositionID: Number(newEmployee.Position.PositionID),
       }
-
+      console.log("empl data: ", employeeData)
       let response: { success: boolean; data?: Employee; error?: string }
 
       if (isEditing && editingEmployeeId) {
@@ -184,35 +210,64 @@ export default function EmployeesPage() {
         if (!response.success) {
           throw new Error(response.error || "Failed to update employee")
         }
-
         // Update the employee in the list
-        // setEmployees(employees.map((employee) => (employee.data.data.EmployeeID === editingEmployeeId ? response.data! : employee)))
-        setEmployees(employees.map((employee) => (employee.EmployeeID === editingEmployeeId ? response.data! : employee)))
+        setEmployees(employees.map((employee) => {
+          if (employee.EmployeeID === editingEmployeeId && response.data) {
+            const updatedDepartment = departments.find(
+              (dep) => dep.DepartmentID === response.data?.Department.DepartmentID
+            );
+            const updatedPosition = positions.find(
+              (pos) => pos.PositionID === response.data?.Position.PositionID
+            );
 
+            return {
+              ...employee,
+              ...response.data,
+              Department: updatedDepartment || employee.Department, // Sử dụng thông tin mới nếu tìm thấy
+              Position: updatedPosition || employee.Position,     // Ngược lại giữ lại thông tin cũ
+            };
+          }
+          return employee;
+        }));
 
         toast({
           title: "Employee updated",
-          description: `${newEmployee.fullName} has been updated successfully.`,
-        })
+          description: `${newEmployee.FullName} has been updated successfully.`,
+        });
+
       } else {
         // Create new employee
         const apiResponse = await employeeApi.create(employeeData)
+        console.log("apiRes: ", apiResponse)
         response = {
           success: apiResponse.success,
           data: apiResponse.data?.data || undefined,
           error: apiResponse.error,
         }
 
+        console.log("res: ", response)
+
         if (!response.success) {
           throw new Error(response.error || "Failed to add employee")
         }
 
+        console.log("employee: ", employees)
+        const department = departments.find(
+          (dep) => dep.DepartmentID === response.data?.Department.DepartmentID
+        );
+
+        const position = positions.find(
+          (pos) => pos.PositionID === response.data?.Position.PositionID
+        );
+
         // Add the new employee to the list
-        setEmployees([...employees, response.data!])
+        setEmployees([...employees, { ...response.data!, Department: department || { DepartmentID: 0 }, Position: position || { PositionID: 0 } }])
+
+
 
         toast({
           title: "Employee added",
-          description: `${newEmployee.fullName} has been added successfully.`,
+          description: `${newEmployee.FullName} has been added successfully.`,
         })
       }
 
@@ -220,17 +275,24 @@ export default function EmployeesPage() {
       setIsEditing(false)
       setEditingEmployeeId(null)
 
+
       // Reset form
       setNewEmployee({
-        fullName: "",
-        dateOfBirth: "",
-        gender: "",
-        phoneNumber: "",
-        email: "",
-        hireDate: new Date().toISOString().split("T")[0],
-        departmentId: 0,
-        positionId: 0,
-        status: "Active",
+        FullName: "",
+        DateOfBirth: "",
+        Gender: "",
+        PhoneNumber: "",
+        Email: "",
+        HireDate: new Date().toISOString().split("T")[0],
+        Department: {
+          DepartmentID: 1,
+
+        },
+        Position: {
+          PositionID: 1,
+
+        },
+        Status: "FULL TIME",
       })
     } catch (error) {
       toast({
@@ -244,8 +306,9 @@ export default function EmployeesPage() {
   // Column definitions for the employees table
   const columns = [
     {
-      accessorKey: "EmployeeID",
+      accessorKey: "index",
       header: "ID",
+      cell: ({ row }: { row: { index: number } }) => row.index + 1,
     },
     {
       accessorKey: "FullName",
@@ -318,17 +381,29 @@ export default function EmployeesPage() {
     const employeeToEdit = employees.find((employee) => employee.EmployeeID === id)
     if (!employeeToEdit) return
 
+
     // Set the form values
     setNewEmployee({
-      fullName: employeeToEdit.FullName,
-      dateOfBirth: employeeToEdit.DateOfBirth,
-      gender: employeeToEdit.gender,
-      phoneNumber: employeeToEdit.phoneNumber,
-      email: employeeToEdit.email,
-      hireDate: employeeToEdit.hireDate,
-      departmentId: employeeToEdit.departmentId,
-      positionId: employeeToEdit.positionId,
-      status: employeeToEdit.status,
+      FullName: employeeToEdit.FullName,
+      DateOfBirth: employeeToEdit.DateOfBirth,
+      Gender: employeeToEdit.Gender,
+      PhoneNumber: employeeToEdit.PhoneNumber,
+      Email: employeeToEdit.Email,
+      HireDate: employeeToEdit.HireDate,
+      Department: {
+        DepartmentID: employeeToEdit.Department.DepartmentID,
+
+      },
+
+
+      Position: {
+        PositionID: employeeToEdit.Position.PositionID,
+
+      },
+
+
+      Status: employeeToEdit.Status,
+
     })
 
     // Set editing mode
@@ -339,8 +414,9 @@ export default function EmployeesPage() {
 
   const handleDeleteEmployee = async (id: number) => {
     try {
+      console.log("id: ", id)
       const response = await employeeApi.delete(id)
-
+      console.log("res: ", response)
       if (!response.success) {
         throw new Error(response.error || "Failed to delete employee")
       }
@@ -362,6 +438,7 @@ export default function EmployeesPage() {
   }
 
   return (
+
     <DashboardLayout role="hr" userName="HR Manager">
       <div className="space-y-6">
         <div className="flex items-center justify-between">
@@ -377,15 +454,19 @@ export default function EmployeesPage() {
                 setIsEditing(false)
                 setEditingEmployeeId(null)
                 setNewEmployee({
-                  fullName: "",
-                  dateOfBirth: "",
-                  gender: "",
-                  phoneNumber: "",
-                  email: "",
-                  hireDate: new Date().toISOString().split("T")[0],
-                  departmentId: 0,
-                  positionId: 0,
-                  status: "Active",
+                  FullName: "",
+                  DateOfBirth: "",
+                  Gender: "",
+                  PhoneNumber: "",
+                  Email: "",
+                  HireDate: new Date().toISOString().split("T")[0],
+                  Department: {
+                    DepartmentID: 1,
+                  },
+                  Position: {
+                    PositionID: 0,
+                  },
+                  Status: "FULL TIME",
                 })
               }
             }}
@@ -407,21 +488,21 @@ export default function EmployeesPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="FullName">Full Name</Label>
-                    <Input id="fullName" name="fullName" value={newEmployee.fullName} onChange={handleInputChange} />
+                    <Input id="FullName" name="FullName" value={newEmployee.FullName} onChange={handleInputChange} />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="dateOfBirth">Date of Birth</Label>
+                    <Label htmlFor="DateOfBirth">Date of Birth</Label>
                     <Input
-                      id="dateOfBirth"
-                      name="dateOfBirth"
+                      id="DateOfBirth"
+                      name="DateOfBirth"
                       type="date"
-                      value={newEmployee.dateOfBirth}
+                      value={newEmployee.DateOfBirth}
                       onChange={handleInputChange}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="gender">Gender</Label>
-                    <Select value={newEmployee.gender} onValueChange={(value) => handleSelectChange("gender", value)}>
+                    <Label htmlFor="Gender">Gender</Label>
+                    <Select value={newEmployee.Gender} onValueChange={(value) => handleSelectChange("Gender", value)}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select gender" />
                       </SelectTrigger>
@@ -433,80 +514,80 @@ export default function EmployeesPage() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="phoneNumber">Phone Number</Label>
+                    <Label htmlFor="PhoneNumber">Phone Number</Label>
                     <Input
-                      id="phoneNumber"
-                      name="phoneNumber"
-                      value={newEmployee.phoneNumber}
+                      id="PhoneNumber"
+                      name="PhoneNumber"
+                      value={newEmployee.PhoneNumber}
                       onChange={handleInputChange}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="Email">Email</Label>
                     <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      value={newEmployee.email}
+                      id="Email"
+                      name="Email"
+                      type="Email"
+                      value={newEmployee.Email}
                       onChange={handleInputChange}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="hireDate">Hire Date</Label>
+                    <Label htmlFor="HireDate">Hire Date</Label>
                     <Input
-                      id="hireDate"
-                      name="hireDate"
-                      type="date"
-                      value={newEmployee.hireDate}
+                      id="HireDate"
+                      name="HireDate"
+                      type="Date"
+                      value={newEmployee.HireDate}
                       onChange={handleInputChange}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="department">Department</Label>
+                    <Label htmlFor="Department">Department</Label>
                     <Select
-                      value={newEmployee.departmentId?.toString()}
-                      onValueChange={(value) => handleSelectChange("departmentId", value)}
+                      value={newEmployee.Department?.DepartmentID?.toString()}
+                      onValueChange={(value) => handleSelectChange("Department.DepartmentID", value)}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select department" />
                       </SelectTrigger>
                       <SelectContent>
                         {departments.map((department) => (
-                          <SelectItem key={department.id} value={department.id.toString()}>
-                            {department.name}
+                          <SelectItem key={department.DepartmentID} value={department.DepartmentID.toString()}>
+                            {department.DepartmentName}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="position">Position</Label>
+                    <Label htmlFor="Position">Position</Label>
                     <Select
-                      value={newEmployee.positionId?.toString()}
-                      onValueChange={(value) => handleSelectChange("positionId", value)}
+                      value={newEmployee.Position?.PositionID?.toString()}
+                      onValueChange={(value) => handleSelectChange("Position.PositionID", value)}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select position" />
                       </SelectTrigger>
                       <SelectContent>
                         {positions.map((position) => (
-                          <SelectItem key={position.id} value={position.id.toString()}>
-                            {position.name}
+                          <SelectItem key={position.PositionID} value={position.PositionID.toString()}>
+                            {position.PositionName}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="status">Status</Label>
-                    <Select value={newEmployee.status} onValueChange={(value) => handleSelectChange("status", value)}>
+                    <Label htmlFor="Status">Status</Label>
+                    <Select value={newEmployee.Status} onValueChange={(value) => handleSelectChange("Status", value)}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select status" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Active">Active</SelectItem>
-                        <SelectItem value="On Leave">On Leave</SelectItem>
-                        <SelectItem value="Probation">Probation</SelectItem>
+                        <SelectItem value="FULL TIME">FULL TIME</SelectItem>
+                        <SelectItem value="PART TIME">PART TIME</SelectItem>
+                        {/* <SelectItem value="Probation">Probation</SelectItem> */}
                       </SelectContent>
                     </Select>
                   </div>

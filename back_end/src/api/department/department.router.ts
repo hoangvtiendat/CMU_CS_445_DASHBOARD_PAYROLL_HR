@@ -7,7 +7,7 @@ const departmentRouter = Router();
 
 
 
-// departmentRouter.get('/', DepartmentController.getAll);
-// departmentRouter.get('/count', DepartmentController.getCount);
+departmentRouter.get('/', DepartmentController.getAll);
+departmentRouter.get('/count', DepartmentController.getCount);
 
 export default departmentRouter;

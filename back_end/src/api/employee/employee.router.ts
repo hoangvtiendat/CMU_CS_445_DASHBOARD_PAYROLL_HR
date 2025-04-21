@@ -3,10 +3,14 @@ import { Router } from 'express';
 import { EmployeeController } from './employee.controller';
 
 
-const empolyeeRouter = Router();
+const employeeRouter = Router();
 
 
 
-empolyeeRouter.get('/', EmployeeController.getAll);
+employeeRouter.get('/', EmployeeController.getAll);
+employeeRouter.get('/status', EmployeeController.status)
+employeeRouter.put('/:id', EmployeeController.update)
+employeeRouter.post('/', EmployeeController.create)
+employeeRouter.delete('/:id', EmployeeController.delete)
 
-export default empolyeeRouter;
+export default employeeRouter;

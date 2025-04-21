@@ -93,7 +93,7 @@ export const authApi = {
 // Employee APIs
 export const employeeApi = {
   getAll: (): Promise<ApiResponse<Employee[]>> => apiRequest<Employee[]>("/employees"),
-
+  status:  (): Promise<ApiResponse<EmployeeStats>> => apiRequest<EmployeeStats>("/employees/status"),
   getById: (id: number): Promise<ApiResponse<Employee>> => apiRequest<Employee>(`/employees/${id}`),
 
   create: (data: CreateEmployeeRequest): Promise<ApiResponse<Employee>> =>
@@ -131,6 +131,8 @@ export const departmentApi = {
   getAll: (): Promise<ApiResponse<Department[]>> => apiRequest<Department[]>("/departments"),
 
   getById: (id: number): Promise<ApiResponse<Department>> => apiRequest<Department>(`/departments/${id}`),
+
+  getCount: ():  Promise<ApiResponse<Department>> => apiRequest<Department>("/departments/count")
 }
 
 // Position APIs

@@ -6,8 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { StatCard } from "@/components/stat-card"
 import { Users, Building2, BellRing } from "lucide-react"
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from "recharts"
-import { dashboardApi, alertApi } from "@/lib/api"
-import type { EmployeeStats, Alert } from "@/lib/api-types"
+import { dashboardApi, alertApi, departmentApi, employeeApi } from "@/lib/api"
+import type { EmployeeStats, Alert, Department } from "@/lib/api-types"
 import { useToast } from "@/components/ui/use-toast"
 
 // Colors for charts
@@ -18,24 +18,37 @@ export default function HRDashboard() {
   const [stats, setStats] = useState<EmployeeStats | null>(null)
   const [alerts, setAlerts] = useState<Alert[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [department, setCountDepartment] = useState<number>(0)
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true)
       try {
+
+        //Fetch total number department
+        const departmentResponsive = await departmentApi.getCount();
+
+        if (!departmentResponsive.success || !departmentResponsive.data) {
+          throw new Error(departmentResponsive.error || "Failed to fetch alerts")
+        }
+
+        setCountDepartment(Number(departmentResponsive.data?.data) || 0);
+
+
         // Fetch employee stats
-        const statsResponse = await dashboardApi.getEmployeeStats()
+        const statsResponse = await employeeApi.status()
         if (!statsResponse.success || !statsResponse.data) {
           throw new Error(statsResponse.error || "Failed to fetch employee statistics")
         }
-        setStats(statsResponse.data)
+        setStats(statsResponse.data.data)
+
 
         // Fetch alerts
         const alertsResponse = await alertApi.getAll()
         if (!alertsResponse.success || !alertsResponse.data) {
           throw new Error(alertsResponse.error || "Failed to fetch alerts")
         }
-        setAlerts(alertsResponse.data)
+        setAlerts(alertsResponse.data?.data || [])
       } catch (error) {
         toast({
           variant: "destructive",
@@ -44,28 +57,27 @@ export default function HRDashboard() {
         })
 
         // Set mock data if API fails
-        setStats({
-          totalEmployees: 100,
-          totalDepartments: 4,
-          employeesByDepartment: [
-            { name: "Engineering", value: 45 },
-            { name: "Marketing", value: 20 },
-            { name: "Sales", value: 25 },
-            { name: "HR", value: 10 },
-          ],
-          employeesByPosition: [
-            { name: "Developer", value: 35 },
-            { name: "Manager", value: 15 },
-            { name: "Designer", value: 10 },
-            { name: "Analyst", value: 20 },
-            { name: "Other", value: 20 },
-          ],
-          employeesByStatus: [
-            { name: "Active", count: 85 },
-            { name: "On Leave", count: 10 },
-            { name: "Probation", count: 5 },
-          ],
-        })
+        // setStats({
+        //   totalEmployees: 100,
+        //   employeesByDepartment: [
+        //     { name: "Engineering", value: 45 },
+        //     { name: "Marketing", value: 20 },
+        //     { name: "Sales", value: 25 },
+        //     { name: "HR", value: 10 },
+        //   ],
+        //   employeesByPosition: [
+        //     { name: "Developer", value: 35 },
+        //     { name: "Manager", value: 15 },
+        //     { name: "Designer", value: 10 },
+        //     { name: "Analyst", value: 20 },
+        //     { name: "Other", value: 20 },
+        //   ],
+        //   employeesByStatus: [
+        //     { name: "Active", count: 85 },
+        //     { name: "On Leave", count: 10 },
+        //     { name: "Probation", count: 5 },
+        //   ],
+        // })
 
         setAlerts([
           {
@@ -100,12 +112,18 @@ export default function HRDashboard() {
 
   // Use mock data if API data is not available
   const displayStats = stats || {
-    totalEmployees: 100,
-    totalDepartments: 4,
-    employeesByDepartment: [],
+    totalEmployees: 0,
+    totalDepartments: 0,
+    employeesByDepartment: [
+      { name: "Engineering", value: 45 },
+      { name: "Marketing", value: 20 },
+      { name: "Sales", value: 25 },
+      { name: "HR", value: 10 },
+    ],
     employeesByPosition: [],
     employeesByStatus: [],
   }
+
 
   return (
     <DashboardLayout role="hr" userName="HR Manager">
@@ -123,7 +141,7 @@ export default function HRDashboard() {
           />
           <StatCard
             title="Total Departments"
-            value={displayStats.totalDepartments}
+            value={department}
             icon={<Building2 className="h-4 w-4 text-muted-foreground" />}
           />
         </div>
@@ -143,7 +161,7 @@ export default function HRDashboard() {
                       cx="50%"
                       cy="50%"
                       labelLine={true}
-                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      label={({ name, value }) => `${name}: ${value}`}
                       outerRadius={80}
                       fill="#8884d8"
                       dataKey="value"
@@ -152,7 +170,9 @@ export default function HRDashboard() {
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
-                    <Tooltip />
+                    <Tooltip
+                      
+                    />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
@@ -207,11 +227,13 @@ export default function HRDashboard() {
                     bottom: 5,
                   }}
                 >
-                  <XAxis dataKey="name" />
+                  <XAxis dataKey="status" />
                   <YAxis />
-                  <Tooltip />
+                  <Tooltip
+
+                  />
                   <Legend />
-                  <Bar dataKey="count" fill="#8884d8" />
+                  <Bar dataKey="value" fill="#8884d8" />
                 </BarChart>
               </ResponsiveContainer>
             </div>

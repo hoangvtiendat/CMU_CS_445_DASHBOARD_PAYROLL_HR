@@ -1,10 +1,11 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { EmployeeService } from './employee.service';
-import { ResponseStatus } from '../services/serviceResponse';
+import { ResponseStatus, ServiceResponse } from '../services/serviceResponse';
 // import { Login } from './auth.interface';
 import { handleServiceResponse } from '../services/httpHandlerResponse';
 import passport from 'passport'
+import { error } from 'console';
 
 interface UserProfile {
     id: string;
@@ -22,7 +23,64 @@ export const EmployeeController = {
         } catch (error) {
             res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
                 status: 'Failed',
-                message: 'Error logging in',
+                message: 'Error get all employee',
+                error: (error as Error).message,
+            });
+        }
+    },
+
+    async status(req: Request, res: Response) {
+        try {
+            const serviceResponse = await EmployeeService.status();
+            handleServiceResponse(serviceResponse, res);
+        } catch (error) {
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+                status: 'Failed',
+                message: 'Error get status employee',
+                error: (error as Error).message,
+            });
+        }
+    },
+
+    async update(req: Request, res: Response) {
+        try {
+            const id = Number(req.params.id);
+            const data = req.body;
+            const serviceResponse = await EmployeeService.update(id, data);
+            handleServiceResponse(serviceResponse, res);
+        } catch (error) {
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+                status: 'Failed',
+                message: 'Error update employee',
+                error: (error as Error).message,
+            });
+        }
+    },
+
+    async create(req: Request, res: Response) {
+        try {
+            const data = req.body;
+            const serviceResponse = await EmployeeService.create(data);
+            handleServiceResponse(serviceResponse, res);
+        } catch (error) {
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+                status: 'Failed',
+                message: 'Error create employee',
+                error: (error as Error).message,
+            });
+        }
+    },
+
+    async delete(req: Request, res: Response) {
+        try {
+            const id = Number(req.params.id)
+            console.log("id: ", id);
+            const serviceResponse = await EmployeeService.delete(id);
+            handleServiceResponse(serviceResponse, res);
+        } catch (error) {
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+                status: 'Failed',
+                message: 'Error delete employee',
                 error: (error as Error).message,
             });
         }

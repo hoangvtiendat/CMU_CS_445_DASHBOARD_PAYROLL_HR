@@ -51,14 +51,14 @@ export default function AccountsPage() {
         if (!accountsResponse.success || !accountsResponse.data) {
           throw new Error(accountsResponse.error || "Failed to fetch accounts")
         }
-        setAccounts(accountsResponse.data)
+        setAccounts(accountsResponse.data.data ?? [])
 
         // Fetch employees for the dropdown
         const employeesResponse = await employeeApi.getAll()
         if (!employeesResponse.success || !employeesResponse.data) {
           throw new Error(employeesResponse.error || "Failed to fetch employees")
         }
-        setEmployees(employeesResponse.data)
+        setEmployees(employeesResponse.data.data ?? [])
       } catch (error) {
         toast({
           variant: "destructive",
@@ -112,32 +112,39 @@ export default function AccountsPage() {
 
         setEmployees([
           {
-            id: 1,
-            fullName: "John Doe",
-            dateOfBirth: "1985-05-15",
-            gender: "Male",
-            phoneNumber: "+1 (555) 123-4567",
-            email: "john.doe@example.com",
-            hireDate: "2020-01-10",
-            departmentId: 1,
-            department: "Engineering",
-            positionId: 1,
-            position: "Software Developer",
-            status: "Active",
+            EmployeeID: 1,
+            FullName: "John Doe",
+            DateOfBirth: "1985-05-15",
+            Gender: "Male",
+            PhoneNumber: "+1 (555) 123-4567",
+            Email: "john.doe@example.com",
+            HireDate: "2020-01-10",
+            DepartmentId: 1,
+            Department: {
+              DepartmentID: 1
+            },
+            Position: {
+              PositionID: 1,
+            },
+            Status: "Active",
           },
+
           {
-            id: 2,
-            fullName: "Jane Smith",
-            dateOfBirth: "1990-08-22",
-            gender: "Female",
-            phoneNumber: "+1 (555) 987-6543",
-            email: "jane.smith@example.com",
-            hireDate: "2019-03-15",
-            departmentId: 2,
-            department: "Marketing",
-            positionId: 3,
-            position: "Marketing Manager",
-            status: "Active",
+            EmployeeID: 2,
+            FullName: "John Doe2",
+            DateOfBirth: "1985-05-15",
+            Gender: "Male",
+            PhoneNumber: "+1 (555) 123-4567",
+            Email: "john.doe@example.com",
+            HireDate: "2020-01-10",
+            DepartmentId: 1,
+            Department: {
+              DepartmentID: 1
+            },
+            Position: {
+              PositionID: 1,
+            },
+            Status: "Active",
           },
         ])
       } finally {
@@ -160,13 +167,13 @@ export default function AccountsPage() {
   const handleSelectChange = (name: string, value: string) => {
     if (name === "employeeId" && value) {
       // If an employee is selected, auto-fill the name and email
-      const selectedEmployee = employees.find((emp) => emp.id.toString() === value)
+      const selectedEmployee = employees.find((emp) => emp.EmployeeID.toString() === value)
       if (selectedEmployee) {
         setNewAccount((prev) => ({
           ...prev,
           [name]: Number(value),
-          fullName: selectedEmployee.fullName,
-          email: selectedEmployee.email,
+          fullName: selectedEmployee.FullName,
+          email: selectedEmployee.Email,
         }))
       } else {
         setNewAccount((prev) => ({ ...prev, [name]: Number(value) }))
@@ -221,7 +228,7 @@ export default function AccountsPage() {
         }
 
         // Update the account in the list
-        setAccounts(accounts.map((account) => (account.id === editingAccountId ? response.data! : account)))
+        setAccounts(accounts.map((account) => (account.id === editingAccountId ? response.data!.data! : account)))
 
         toast({
           title: "Account updated",
@@ -241,7 +248,7 @@ export default function AccountsPage() {
         }
 
         // Add the new account to the list
-        setAccounts([...accounts, response.data!])
+        setAccounts([...accounts, response.data!.data!])
 
         toast({
           title: "Account created",
@@ -296,7 +303,7 @@ export default function AccountsPage() {
     },
     {
       id: "actions",
-      cell: ({ row }) => {
+      cell: ({ row }: { row: { original: Account } }) => {
         const account = row.original as Account
         return (
           <div className="flex items-center gap-2">
@@ -323,7 +330,7 @@ export default function AccountsPage() {
       email: accountToEdit.email,
       fullName: accountToEdit.fullName,
       role: accountToEdit.role,
-      employeeId: accountToEdit.employeeId,
+      employeeId: accountToEdit.employeeId || undefined,
       password: "", // Password field is empty when editing
     })
 
