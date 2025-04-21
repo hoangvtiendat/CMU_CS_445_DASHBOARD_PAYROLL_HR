@@ -23,7 +23,6 @@ import { useToast } from "@/components/ui/use-toast"
 import { Edit, Plus, Trash2 } from "lucide-react"
 import { employeeApi, departmentApi, positionApi } from "@/lib/api"
 import type { Employee, Department, Position, CreateEmployeeRequest } from "@/lib/api-types"
-
 export default function EmployeesPage() {
   const { toast } = useToast()
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
@@ -31,6 +30,10 @@ export default function EmployeesPage() {
   const [departments, setDepartments] = useState<Department[]>([])
   const [positions, setPositions] = useState<Position[]>([])
   const [isLoading, setIsLoading] = useState(true)
+
+
+
+
   const [newEmployee, setNewEmployee] = useState<Partial<CreateEmployeeRequest>>({
     FullName: "",
     DateOfBirth: "",
@@ -168,23 +171,27 @@ export default function EmployeesPage() {
 
   const handleAddEmployee = async () => {
     try {
+      console.log(1)
       // Validate required fields
       if (!newEmployee.FullName || !newEmployee.Department?.DepartmentID || !newEmployee.Position?.PositionID) {
+        console.log(2)
         toast({
           variant: "destructive",
           title: "Validation Error",
           description: "Please fill in all required fields.",
         })
+        console.log(3)
         return
       }
 
       // Convert departmentId and positionId to numbers
-      const employeeData = {
+      const employeeData =
+      {
         ...(newEmployee as CreateEmployeeRequest),
         DepartmentID: Number(newEmployee.Department?.DepartmentID),
         PositionID: Number(newEmployee.Position.PositionID),
       }
-
+      console.log("empl data: ", employeeData)
       let response: { success: boolean; data?: Employee; error?: string }
 
       if (isEditing && editingEmployeeId) {
@@ -193,6 +200,7 @@ export default function EmployeesPage() {
           id: editingEmployeeId,
           ...employeeData,
         })
+
         response = {
           success: apiResponse.success,
           data: apiResponse.data?.data || undefined,
@@ -203,8 +211,6 @@ export default function EmployeesPage() {
           throw new Error(response.error || "Failed to update employee")
         }
         // Update the employee in the list
-        // setEmployees(employees.map((employee) => (employee.data.data.EmployeeID === editingEmployeeId ? response.data! : employee)))
-        // setEmployees(employees.map((employee) => (employee.EmployeeID === editingEmployeeId ? response.data! : employee)))
         setEmployees(employees.map((employee) => {
           if (employee.EmployeeID === editingEmployeeId && response.data) {
             const updatedDepartment = departments.find(
@@ -224,7 +230,6 @@ export default function EmployeesPage() {
           return employee;
         }));
 
-
         toast({
           title: "Employee updated",
           description: `${newEmployee.FullName} has been updated successfully.`,
@@ -233,18 +238,32 @@ export default function EmployeesPage() {
       } else {
         // Create new employee
         const apiResponse = await employeeApi.create(employeeData)
+        console.log("apiRes: ", apiResponse)
         response = {
           success: apiResponse.success,
           data: apiResponse.data?.data || undefined,
           error: apiResponse.error,
         }
 
+        console.log("res: ", response)
+
         if (!response.success) {
           throw new Error(response.error || "Failed to add employee")
         }
 
+        console.log("employee: ", employees)
+        const department = departments.find(
+          (dep) => dep.DepartmentID === response.data?.Department.DepartmentID
+        );
+
+        const position = positions.find(
+          (pos) => pos.PositionID === response.data?.Position.PositionID
+        );
+
         // Add the new employee to the list
-        setEmployees([...employees, response.data!])
+        setEmployees([...employees, { ...response.data!, Department: department || { DepartmentID: 0 }, Position: position || { PositionID: 0 } }])
+
+
 
         toast({
           title: "Employee added",
@@ -362,6 +381,7 @@ export default function EmployeesPage() {
     const employeeToEdit = employees.find((employee) => employee.EmployeeID === id)
     if (!employeeToEdit) return
 
+
     // Set the form values
     setNewEmployee({
       FullName: employeeToEdit.FullName,
@@ -394,8 +414,9 @@ export default function EmployeesPage() {
 
   const handleDeleteEmployee = async (id: number) => {
     try {
+      console.log("id: ", id)
       const response = await employeeApi.delete(id)
-
+      console.log("res: ", response)
       if (!response.success) {
         throw new Error(response.error || "Failed to delete employee")
       }
@@ -417,7 +438,8 @@ export default function EmployeesPage() {
   }
 
   return (
-    <DashboardLayout role="admin" userName="Admin">
+
+    <DashboardLayout role="admin" userName="ADMIN">
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
