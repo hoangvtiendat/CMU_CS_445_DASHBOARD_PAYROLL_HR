@@ -78,10 +78,8 @@ export const employeeRepository = {
     async status(): Promise<{ totalEmployees: number, employeesByDepartment: any, employeesByPosition: any, employeesByStatus: any } | null> {
 
         const mssqlTotalEmployees = await mssqlRepository.count();
-        const mysqlTotalEmployees = await mysqlRepository.count();
-
         //get total employee
-        const totalEmployees = Number(mssqlTotalEmployees) + Number(mysqlTotalEmployees);
+        const totalEmployees = Number(mssqlTotalEmployees);
 
         //get Employee by Department
         const mssqlEmployeeByDepartment = await mssqlRepository
@@ -182,8 +180,13 @@ export const employeeRepository = {
         if (!employee) {
             throw new Error("This user does not exist")
         }
+        const check = await mysqlRepository.delete({ EmployeeID: id });
+        if(!check)
+        {
+            throw new Error("Error delete employee")
+        }
         await mssqlRepository.delete({ EmployeeID: id });
-        await mysqlRepository.delete({ EmployeeID: id });
+
 
         return 1;
     }

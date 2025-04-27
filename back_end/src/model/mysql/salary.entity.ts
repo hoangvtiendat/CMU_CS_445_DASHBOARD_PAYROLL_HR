@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, BeforeInsert, BeforeUpdate } from 'typeorm';
 import { MySQLEmployee } from './employee.entity';
 
-@Entity({ name: 'Slaries', schema: 'HUMAN_PAYROLL' })
+@Entity({ name: 'Salaries', schema: 'HUMAN_PAYROLL' })
 export class Salary {
     @PrimaryGeneratedColumn()
     public SalaryID!: number; // INT AUTO_INCREMENT
@@ -27,7 +27,7 @@ export class Salary {
 
 
     @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-    public CreateAt!: Date;
+    public CreatedAt!: Date;
 
     @BeforeInsert()
     @BeforeUpdate()

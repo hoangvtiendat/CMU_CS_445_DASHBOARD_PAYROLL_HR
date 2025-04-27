@@ -18,7 +18,7 @@ export const EmployeeService = {
                 users ?? [],
                 StatusCodes.OK
             )
-        } catch (ex) {
+        } catch (ex) { 
             const errorMessage = `Error get Employee user: ${(ex as Error).message}`;
             return new ServiceResponse(
                 ResponseStatus.Failed,

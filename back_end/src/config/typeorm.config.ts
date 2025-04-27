@@ -9,6 +9,7 @@ import { MySQLPosition } from '../model/mysql/position.entity';
 import { MSSQLDepartment } from '../model/mssql/department.entity';
 import { MSSQLEmployee } from '../model/mssql/employee.entity';
 import { MSSQLPosition } from '../model/mssql/position.entity';
+import { Salary } from '../model/mysql/salary.entity';
 import 'reflect-metadata';
 
 config();
@@ -20,7 +21,7 @@ const MySQLDataSource = new DataSource({
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
-  entities: [MySQLAccount, MySQLEmployee, MySQLAttendance, MySQLDepartment, MySQLPosition],
+  entities: [MySQLAccount, MySQLEmployee, MySQLAttendance, MySQLDepartment, MySQLPosition, Salary],
   synchronize: false,
   logging: true,
 });

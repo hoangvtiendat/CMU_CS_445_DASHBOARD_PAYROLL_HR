@@ -5,11 +5,14 @@ import { DashboardLayout } from "@/components/dashboard-layout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { StatCard } from "@/components/stat-card"
 import { Users, Building2, BellRing } from "lucide-react"
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts"
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts"
 import { dashboardApi, alertApi } from "@/lib/api"
 import type { EmployeeStats, PayrollStats, Alert } from "@/lib/api-types"
 import { useToast } from "@/components/ui/use-toast"
 import { useRouter } from "next/navigation"
+
+
+const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff8042", "#a4de6c", "#d0ed57", "#8dd1e1"];
 
 export default function AdminDashboard() {
   const { toast } = useToast()
@@ -17,6 +20,7 @@ export default function AdminDashboard() {
   const [payrollStats, setPayrollStats] = useState<PayrollStats | null>(null)
   const [alerts, setAlerts] = useState<Alert[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [stats, setStats] = useState<EmployeeStats | null>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -35,21 +39,21 @@ export default function AdminDashboard() {
         if (!employeeStatsResponse.success || !employeeStatsResponse.data) {
           throw new Error(employeeStatsResponse.error || "Failed to fetch employee statistics")
         }
-        setEmployeeStats(employeeStatsResponse.data)
+        setEmployeeStats(employeeStatsResponse.data.data)
 
         // Fetch payroll stats
         const payrollStatsResponse = await dashboardApi.getPayrollStats()
         if (!payrollStatsResponse.success || !payrollStatsResponse.data) {
           throw new Error(payrollStatsResponse.error || "Failed to fetch payroll statistics")
         }
-        setPayrollStats(payrollStatsResponse.data)
+        setPayrollStats(payrollStatsResponse.data.data)
 
         // Fetch alerts
         const alertsResponse = await alertApi.getAll()
         if (!alertsResponse.success || !alertsResponse.data) {
           throw new Error(alertsResponse.error || "Failed to fetch alerts")
         }
-        setAlerts(alertsResponse.data)
+        setAlerts(alertsResponse.data.data)
       } catch (error) {
         toast({
           variant: "destructive",
@@ -61,7 +65,7 @@ export default function AdminDashboard() {
         setEmployeeStats({
           totalEmployees: 100,
           totalDepartments: 4,
-          employeesByDepartment: [
+          employeesByDepartment: [ 
             { name: "Engineering", value: 45 },
             { name: "Marketing", value: 20 },
             { name: "Sales", value: 25 },
@@ -171,6 +175,23 @@ export default function AdminDashboard() {
     monthlySalaryByDepartment: [],
   }
 
+  const displayStats = stats || {
+    totalEmployees: 0,
+    totalDepartments: 0,
+    employeesByDepartment: [
+      { name: "Engineering", value: 45 },
+      { name: "Marketing", value: 20 },
+      { name: "Sales", value: 25 },
+      { name: "HR", value: 10 },
+    ],
+    employeesByPosition: [
+      { name: "ADMIN", value: 39 },
+      { name: "EMPLOYEE", value: 20 },
+      { name: "SALE", value: 15 },
+      { name: "HR", value: 10 },],
+    employeesByStatus: [],
+  }
+
   return (
     <DashboardLayout role="admin" userName="Admin">
       <div className="space-y-6">
@@ -231,6 +252,70 @@ export default function AdminDashboard() {
             </div>
           </CardContent>
         </Card>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Employees by Department</CardTitle>
+              <CardDescription>Distribution of employees across departments</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={displayStats.employeesByDepartment}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={true}
+                      label={({ name, value }) => `${name}: ${value}`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {displayStats.employeesByDepartment.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Employees by Position</CardTitle>
+              <CardDescription>Distribution of employees across positions</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={displayStats.employeesByPosition}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={true}
+                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {displayStats.employeesByPosition.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
         <Card>
           <CardHeader className="flex flex-row items-center">

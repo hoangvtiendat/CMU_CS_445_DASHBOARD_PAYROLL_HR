@@ -41,8 +41,6 @@ export default function HRDashboard() {
           throw new Error(statsResponse.error || "Failed to fetch employee statistics")
         }
         setStats(statsResponse.data.data)
-
-
         // Fetch alerts
         const alertsResponse = await alertApi.getAll()
         if (!alertsResponse.success || !alertsResponse.data) {

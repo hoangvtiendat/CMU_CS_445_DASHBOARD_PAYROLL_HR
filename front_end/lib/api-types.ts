@@ -71,29 +71,26 @@ export interface UpdateEmployeeRequest extends Partial<CreateEmployeeRequest> {
 
 // Salary types
 export interface Salary {
-  id: number
-  employeeId: number
-  fullName: string
-  department: string
-  position: string
-  baseSalary: number
-  bonus: number
-  deductions: number
-  netSalary: number
-  actualSalary: number
-  month: string
+  SalaryID: number
+  EmployeeID: number
+  BaseSalary: number
+  Bonus: number
+  Deductions: number
+  NetSalary: number
+  SalaryMonth: Date
+  FullName: string
 }
 
 export interface CreateSalaryRequest {
-  employeeId: number
-  baseSalary: number
-  bonus: number
-  deductions: number
-  month: string
+  EmployeeID: number
+  BaseSalary: number
+  Bonus: number
+  Deductions: number
+  SalaryMonth: Date
 }
 
 export interface UpdateSalaryRequest extends Partial<CreateSalaryRequest> {
-  id: number
+  SalaryID: number
 }
 
 // Department types
