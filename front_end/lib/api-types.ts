@@ -86,7 +86,7 @@ export interface CreateSalaryRequest {
   BaseSalary: number
   Bonus: number
   Deductions: number
-  SalaryMonth: Date
+  SalaryMonth: string // formatted as "yyyy-MM-dd"
 }
 
 export interface UpdateSalaryRequest extends Partial<CreateSalaryRequest> {

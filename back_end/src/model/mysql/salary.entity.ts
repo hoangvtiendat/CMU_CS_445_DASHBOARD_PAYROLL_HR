@@ -8,7 +8,7 @@ export class Salary {
 
     @ManyToOne(() => MySQLEmployee)
     @JoinColumn({ name: 'EmployeeID' })
-    public Employee!: MySQLEmployee;
+    public EmployeeID!: MySQLEmployee;
 
     @Column({ type: 'date'})
     public SalaryMonth!: Date;

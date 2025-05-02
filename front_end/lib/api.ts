@@ -121,7 +121,7 @@ export const salaryApi = {
   create: (data: CreateSalaryRequest): Promise<ApiResponse<Salary>> => apiRequest<Salary>("/salaries", "POST", data),
 
   update: (data: UpdateSalaryRequest): Promise<ApiResponse<Salary>> =>
-    apiRequest<Salary>(`/salaries/${data.id}`, "PUT", data),
+    apiRequest<Salary>(`/salaries/${data.SalaryID}`, "PUT", data),
 
   delete: (id: number): Promise<ApiResponse<null>> => apiRequest<null>(`/salaries/${id}`, "DELETE"),
 }

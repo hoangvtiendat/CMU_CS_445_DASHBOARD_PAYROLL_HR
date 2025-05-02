@@ -59,7 +59,7 @@ export const PayrollService = {
                 throw new Error("Please fill data!");
             }
 
-            if (!data.Employee) {
+            if (!data.EmployeeID) {
                 throw new Error("Please choose Employee")
             }
             const newSalaryRecord = await salaryRepository.create(data);

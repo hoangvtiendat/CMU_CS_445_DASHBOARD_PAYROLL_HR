@@ -36,7 +36,7 @@ export default function SalaryPage() {
     BaseSalary: 0,
     Bonus: 0,
     Deductions: 0,
-    SalaryMonth: new Date(selectedMonth),
+    SalaryMonth: new Date(selectedMonth).toISOString().split("T")[0],
   })
   const [isEditing, setIsEditing] = useState(false)
   const [editingSalaryId, setEditingSalaryId] = useState<number | null>(null)
@@ -54,7 +54,6 @@ export default function SalaryPage() {
 
         // Fetch salary data for the selected month
         const salaryResponse = await salaryApi.getAll(monthYearString)
-        console.log("salaryResponse: ", salaryResponse)
         if (!salaryResponse.success || !salaryResponse.data) {
           throw new Error(salaryResponse.error || "Failed to fetch salary data")
         }
@@ -230,7 +229,14 @@ export default function SalaryPage() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
-    setNewSalary((prev) => ({ ...prev, [name]: value }))
+    if (name === "SalaryMonth") {
+      // Cập nhật selectedMonth để hiển thị trong ô input
+      setSelectedMonth(value);
+      // Cập nhật newSalary.SalaryMonth
+      setNewSalary((prev) => ({ ...prev, [name]: new Date(value).toISOString().split("T")[0] }));
+    } else {
+      setNewSalary((prev) => ({ ...prev, [name]: value }));
+    }
   }
 
   const handleSelectChange = (name: string, value: string) => {
@@ -281,7 +287,9 @@ export default function SalaryPage() {
       BaseSalary: salaryToEdit.BaseSalary,
       Bonus: salaryToEdit.Bonus,
       Deductions: salaryToEdit.Deductions,
-      SalaryMonth: salaryToEdit.SalaryMonth,
+      SalaryMonth: salaryToEdit.SalaryMonth instanceof Date
+        ? salaryToEdit.SalaryMonth.toISOString().split("T")[0]
+        : salaryToEdit.SalaryMonth,
     })
 
     // Set editing mode
@@ -313,6 +321,14 @@ export default function SalaryPage() {
       })
     }
   }
+
+  const formatDateToYYYYMMDD = (date: Date | string) => {
+    const d = new Date(date);
+    console.log("d1: ", d)
+    const a = d.toISOString().split("T")[0]; // Trả về định dạng YYYY-MM-DD
+    console.log("d2: ", a);
+    return a;
+  };
 
   // Update the handleSaveSalary function to maintain the employee ID when editing
   const handleSaveSalary = async () => {
@@ -346,7 +362,7 @@ export default function SalaryPage() {
           BaseSalary: baseSalary,
           Bonus: bonus,
           Deductions: deductions,
-          SalaryMonth: new Date(selectedMonth),
+          SalaryMonth: formatDateToYYYYMMDD(newSalary.SalaryMonth || selectedMonth), // Keep the format as yyyy-MM-dd
         }
 
         const response = await salaryApi.update(updatedSalaryData)
@@ -378,11 +394,11 @@ export default function SalaryPage() {
           BaseSalary: baseSalary,
           Bonus: bonus,
           Deductions: deductions,
-          SalaryMonth: new Date(selectedMonth),
+          SalaryMonth: formatDateToYYYYMMDD(newSalary.SalaryMonth || selectedMonth),
         }
-
+        console.log("salary data: ", salaryData);
         const response = await salaryApi.create(salaryData)
-
+        console.log("res: ", response);
         if (!response.success) {
           throw new Error(response.error || "Failed to add salary record")
         }
@@ -419,7 +435,7 @@ export default function SalaryPage() {
         BaseSalary: 0,
         Bonus: 0,
         Deductions: 0,
-        SalaryMonth: new Date(selectedMonth),
+        SalaryMonth: new Date(selectedMonth).toISOString().split("T")[0],
       })
 
       // Refresh the salary data
@@ -525,7 +541,7 @@ export default function SalaryPage() {
       },
     },
   ]
-  console.log("salary data: ", salaryData)
+
 
   // Update the DialogContent to show the employee name when editing
   return (
@@ -548,7 +564,7 @@ export default function SalaryPage() {
                   BaseSalary: 0,
                   Bonus: 0,
                   Deductions: 0,
-                  SalaryMonth: new Date(selectedMonth),
+                  SalaryMonth: new Date(selectedMonth).toISOString().split("T")[0],
                 })
               }
             }}

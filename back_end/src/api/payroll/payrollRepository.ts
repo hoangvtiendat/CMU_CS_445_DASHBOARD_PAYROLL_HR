@@ -111,7 +111,7 @@ export const salaryRepository = {
     async create(data: Partial<Salary>): Promise<Salary | null> {
         const existingRecord = await mysqlRepository
             .createQueryBuilder('salary')
-            .where('salary.EmployeeID = :employeeID', { employeeID: data.Employee })
+            .where('salary.EmployeeID = :employeeID', { employeeID: data.EmployeeID })
             .andWhere('MONTH(salary.SalaryMonth) = MONTH(:salaryMonth)', { salaryMonth: data.SalaryMonth })
             .andWhere('YEAR(salary.SalaryMonth) = YEAR(:salaryMonth)', { salaryMonth: data.SalaryMonth })
             .getOne();
