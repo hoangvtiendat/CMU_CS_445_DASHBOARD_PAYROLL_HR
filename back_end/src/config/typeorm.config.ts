@@ -33,7 +33,7 @@ const MSSQLDataSource = new DataSource({
   username: 'sa',
   password: 'Tiendat@123',
   database: 'HUMAN',
-  synchronize: false,
+  synchronize: true,
   logging: false,
   entities: [MSSQLDepartment, MSSQLEmployee, MSSQLPosition],
   options: {

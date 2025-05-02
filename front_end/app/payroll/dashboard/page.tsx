@@ -103,8 +103,8 @@ export default function PayrollDashboard() {
 
   // Use mock data if API data is not available
   const displayStats = stats || {
-    totalMonthlyPayroll: 767000,
-    averageSalary: 7670,
+    totalMonthlyPayroll: 0,
+    averageSalary: 0,
     monthlySalaryByDepartment: [],
   }
 

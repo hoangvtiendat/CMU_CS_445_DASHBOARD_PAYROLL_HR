@@ -70,7 +70,7 @@ export default function SalaryPage() {
           throw new Error(employeesResponse.error || "Failed to fetch employees")
         }
 
-     
+
         setEmployees(employeesResponse.data.data || [])
       } catch (error) {
         toast({
@@ -436,30 +436,35 @@ export default function SalaryPage() {
   // Column definitions for the salary table
   const columns = [
     {
-      accessorKey: "id",
+      accessorKey: "SalaryID",
       header: "ID",
     },
     {
-      accessorKey: "fullName",
+      accessorKey: "FullName",
       header: "Full Name",
     },
     {
-      accessorKey: "department",
+      accessorKey: "DepartmentName",
       header: "Department",
     },
     {
-      accessorKey: "position",
+      accessorKey: "PositionName",
       header: "Position",
     },
     {
-      accessorKey: "month",
+      accessorKey: "SalaryMonth",
       header: "Salary Month",
+      cell: ({ row }: { row: { getValue: (key: string) => string } }) => {
+        const date = new Date(row.getValue("SalaryMonth"))
+        const formatted = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+        return formatted
+      },
     },
     {
-      accessorKey: "baseSalary",
+      accessorKey: "BaseSalary",
       header: "Base Salary",
       cell: ({ row }: { row: { getValue: (key: string) => string } }) => {
-        const amount = Number.parseFloat(row.getValue("baseSalary"))
+        const amount = Number.parseFloat(row.getValue("BaseSalary"))
         const formatted = new Intl.NumberFormat("en-US", {
           style: "currency",
           currency: "USD",
@@ -468,10 +473,10 @@ export default function SalaryPage() {
       },
     },
     {
-      accessorKey: "bonus",
+      accessorKey: "Bonus",
       header: "Bonus",
       cell: ({ row }: { row: { getValue: (key: string) => string } }) => {
-        const amount = Number.parseFloat(row.getValue("bonus"))
+        const amount = Number.parseFloat(row.getValue("Bonus"))
         const formatted = new Intl.NumberFormat("en-US", {
           style: "currency",
           currency: "USD",
@@ -480,10 +485,10 @@ export default function SalaryPage() {
       },
     },
     {
-      accessorKey: "deductions",
+      accessorKey: "Deductions",
       header: "Deductions",
       cell: ({ row }: { row: { getValue: (key: string) => string } }) => {
-        const amount = Number.parseFloat(row.getValue("deductions"))
+        const amount = Number.parseFloat(row.getValue("Deductions"))
         const formatted = new Intl.NumberFormat("en-US", {
           style: "currency",
           currency: "USD",
@@ -492,22 +497,10 @@ export default function SalaryPage() {
       },
     },
     {
-      accessorKey: "netSalary",
+      accessorKey: "NetSalary",
       header: "Net Salary",
       cell: ({ row }: { row: { getValue: (key: string) => string } }) => {
-        const amount = Number.parseFloat(row.getValue("netSalary"))
-        const formatted = new Intl.NumberFormat("en-US", {
-          style: "currency",
-          currency: "USD",
-        }).format(amount)
-        return formatted
-      },
-    },
-    {
-      accessorKey: "actualSalary",
-      header: "Actual Salary",
-      cell: ({ row }: { row: { getValue: (key: string) => string } }) => {
-        const amount = Number.parseFloat(row.getValue("actualSalary"))
+        const amount = Number.parseFloat(row.getValue("NetSalary"))
         const formatted = new Intl.NumberFormat("en-US", {
           style: "currency",
           currency: "USD",
@@ -532,6 +525,7 @@ export default function SalaryPage() {
       },
     },
   ]
+  console.log("salary data: ", salaryData)
 
   // Update the DialogContent to show the employee name when editing
   return (
@@ -584,10 +578,10 @@ export default function SalaryPage() {
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      <Label htmlFor="employeeId">Employee</Label>
+                      <Label htmlFor="EmployeeID">Employee</Label>
                       <Select
                         value={newSalary.EmployeeID?.toString()}
-                        onValueChange={(value) => handleSelectChange("employeeId", value)}
+                        onValueChange={(value) => handleSelectChange("EmployeeID", value)}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Select employee" />
@@ -615,18 +609,18 @@ export default function SalaryPage() {
                   <div className="space-y-2">
                     <Label htmlFor="baseSalary">Base Salary</Label>
                     <Input
-                      id="baseSalary"
-                      name="baseSalary"
+                      id="BaseSalary"
+                      name="BaseSalary"
                       type="number"
                       value={newSalary.BaseSalary?.toString()}
                       onChange={handleInputChange}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="bonus">Bonus</Label>
+                    <Label htmlFor="Bonus">Bonus</Label>
                     <Input
-                      id="bonus"
-                      name="bonus"
+                      id="Bonus"
+                      name="Bonus"
                       type="number"
                       value={newSalary.Bonus?.toString()}
                       onChange={handleInputChange}
@@ -635,8 +629,8 @@ export default function SalaryPage() {
                   <div className="space-y-2">
                     <Label htmlFor="deductions">Deductions</Label>
                     <Input
-                      id="deductions"
-                      name="deductions"
+                      id="Deductions"
+                      name="Deductions"
                       type="number"
                       value={newSalary.Deductions?.toString()}
                       onChange={handleInputChange}
@@ -706,7 +700,7 @@ export default function SalaryPage() {
             <DataTable
               columns={columns}
               data={salaryData}
-              searchColumn="fullName"
+              searchColumn="FullName"
               searchPlaceholder="Search by name..."
             />
           </CardContent>

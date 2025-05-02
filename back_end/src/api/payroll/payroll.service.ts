@@ -6,6 +6,7 @@ import {
 import { StatusCodes } from 'http-status-codes';
 import { Salary } from '../../model/mysql/salary.entity';
 import { salaryRepository } from './payrollRepository';
+import { errorMonitor } from 'events';
 
 
 
@@ -43,6 +44,36 @@ export const PayrollService = {
             );
         } catch (error) {
             const errorMessage = `Error fetching get salary by month: ${(error as Error).message}`;
+            return new ServiceResponse(
+                ResponseStatus.Failed,
+                errorMessage,
+                null,
+                StatusCodes.INTERNAL_SERVER_ERROR
+            );
+        }
+    },
+
+    create: async (data: Partial<Salary>): Promise<ServiceResponse<Salary | null>> => {
+        try {
+            if (data.BaseSalary == undefined || data.BaseSalary == null || data.Bonus == undefined || data.Bonus == null || data.SalaryMonth == null || data.SalaryMonth == undefined || data.Deductions == null || data.Deductions == undefined) {
+                throw new Error("Please fill data!");
+            }
+
+            if (!data.Employee) {
+                throw new Error("Please choose Employee")
+            }
+            const newSalaryRecord = await salaryRepository.create(data);
+            if (!newSalaryRecord) {
+                throw new Error("Error create salary record");
+            }
+            return new ServiceResponse<Salary>(
+                ResponseStatus.Success,
+                'create salary record successfull',
+                newSalaryRecord ?? null,
+                StatusCodes.OK
+            );
+        } catch (error) {
+            const errorMessage = `Error creating salary record: ${(error as Error).message}`;
             return new ServiceResponse(
                 ResponseStatus.Failed,
                 errorMessage,

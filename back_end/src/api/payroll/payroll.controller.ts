@@ -26,9 +26,9 @@ export const PayrollController = {
         try {
             const date = req.query.month;
             if (!date) {
-               throw new Error("Please select a date")
+                throw new Error("Please select a date")
             }
-            const month = date.toString().split(' ')[0]; 
+            const month = date.toString().split(' ')[0];
             const monthNames = [
                 'January', 'February', 'March', 'April', 'May', 'June',
                 'July', 'August', 'September', 'October', 'November', 'December'
@@ -43,11 +43,28 @@ export const PayrollController = {
             const serviceResponse = await PayrollService.getSalaryByMonth(monthNumber, year);
             handleServiceResponse(serviceResponse, res);
 
-            
+
         } catch (error) {
             res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
                 status: 'Failed',
                 message: 'Error get status ',
+                error: (error as Error).message,
+            });
+        }
+    },
+    async create(req: Request, res: Response) {
+        try {
+            const data = req.body
+            if (!data) {
+                throw new Error("Please fill data");
+            }
+            const serviceResponse = await PayrollService.create(data);
+            handleServiceResponse(serviceResponse, res);
+
+        } catch (error) {
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+                status: 'Failed',
+                message: 'Error create record ',
                 error: (error as Error).message,
             });
         }

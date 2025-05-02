@@ -5,7 +5,7 @@ import { Salary } from '../../model/mysql/salary.entity';
 
 
 const mysqlRepository = MySQLDataSource.getRepository(Salary);
-type SalaryWithEmployee = Salary & { FullName: string };
+type SalaryWithEmployee = Salary & { FullName: string } & { PosisitonName: string } & { DepartmentName: string };
 
 export const salaryRepository = {
 
@@ -95,13 +95,36 @@ export const salaryRepository = {
                 'salary.BaseSalary AS BaseSalary',
                 'salary.Bonus AS Bonus',
                 'salary.Deductions AS Deductions',
-                'employee.FullName AS FullName', // Lấy tên nhân viên từ bảng employees
+                'salary.BaseSalary + salary.Bonus - salary.Deductions AS NetSalary', 'employee.FullName AS FullName', // Lấy tên nhân viên từ bảng employees
             ])
+            .innerJoin('positions', 'position', 'employee.PositionID = position.PositionID')
+            .innerJoin('departments', 'department', 'employee.DepartmentID = department.DepartmentID')
+            .addSelect('position.PositionName AS PositionName') // Lấy tên vị trí từ bảng positions
+            .addSelect('department.DepartmentName AS DepartmentName') // Lấy tên phòng ban từ bảng departments
             .where('MONTH(salary.SalaryMonth) = :month', { month })
             .andWhere('YEAR(salary.SalaryMonth) = :year', { year })
             .getRawMany<SalaryWithEmployee>(); // Sử dụng generic để chỉ định kiểu trả về
-    
+
         return salaries.length > 0 ? salaries : null;
+    },
+
+    async create(data: Partial<Salary>): Promise<Salary | null> {
+        const existingRecord = await mysqlRepository
+            .createQueryBuilder('salary')
+            .where('salary.EmployeeID = :employeeID', { employeeID: data.Employee })
+            .andWhere('MONTH(salary.SalaryMonth) = MONTH(:salaryMonth)', { salaryMonth: data.SalaryMonth })
+            .andWhere('YEAR(salary.SalaryMonth) = YEAR(:salaryMonth)', { salaryMonth: data.SalaryMonth })
+            .getOne();
+
+        if (existingRecord) {
+            throw new Error('A salary record for this employee and month already exists.');
+        }
+        const newSalaryRecord = await mysqlRepository.create(data);
+
+        const createSalaryRecord = await mysqlRepository.save(newSalaryRecord);
+
+        return createSalaryRecord;
+
     }
 
 
