@@ -10,7 +10,7 @@ type SalaryWithEmployee = Salary & { FullName: string } & { PosisitonName: strin
 export const salaryRepository = {
 
     async status(): Promise<{ totalMonthlyPayroll: number, averageSalary: number, monthlySalaryByDepartment: { name: string, Marketing: number, TechnologyInformation: number, Sales: number }[] } | null> {
-        console.log(0)
+
         const totalMonthly = await mysqlRepository
             .createQueryBuilder('salary')
             .select('SUM(salary.BaseSalary + salary.Bonus - salary.Deductions)', 'totalSalary')
@@ -20,7 +20,6 @@ export const salaryRepository = {
 
         const totalMonthlyPayroll = Number(totalMonthly?.totalSalary || 0);
 
-        console.log("totalMonthlyPayroll", totalMonthly)
         const average = await mysqlRepository
             .createQueryBuilder('salary')
             .select('AVG(salary.BaseSalary + salary.Bonus - salary.Deductions)', 'averageSalary')
@@ -29,7 +28,7 @@ export const salaryRepository = {
             .getRawOne();
 
         const averageSalary = Number(average?.averageSalary || 0);
-        console.log(2)
+
         const monthlySalaryByDepartmentRaw = await mysqlRepository
             .createQueryBuilder('salary')
             .innerJoin('employees', 'employee', 'salary.EmployeeID = employee.EmployeeID')
@@ -43,7 +42,7 @@ export const salaryRepository = {
             .orderBy('MIN(salary.SalaryMonth)', 'ASC')
             .getRawMany();
 
-        console.log(3)
+
         // Biến đổi dữ liệu để ra dạng yêu cầu
         const monthlySalaryByDepartment = [];
 
@@ -120,14 +119,29 @@ export const salaryRepository = {
             throw new Error('A salary record for this employee and month already exists.');
         }
         const newSalaryRecord = await mysqlRepository.create(data);
-
         const createSalaryRecord = await mysqlRepository.save(newSalaryRecord);
 
         return createSalaryRecord;
 
+    },
+
+    async update(id: number, data: Partial<Salary>): Promise<Salary | null> {
+        const existingRecord = await mysqlRepository.findOneBy({ SalaryID: id });
+        if (!existingRecord) {
+            return null;
+        }
+        await mysqlRepository.update({ SalaryID: id }, data);
+        const updatedRecord = await mysqlRepository.findOneBy({ SalaryID: id });
+        return updatedRecord;
+    },
+    async delete(id: number): Promise<string> {
+        const existingRecord = await mysqlRepository.findOneBy({ SalaryID: id });
+        if (!existingRecord) {
+            return 'This payroll record does not exist.';
+        }
+
+        await mysqlRepository.delete({SalaryID: id});
+        return 'Deleted Salary Record';
+
     }
-
-
-
-
 };

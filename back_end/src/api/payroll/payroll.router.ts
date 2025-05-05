@@ -9,4 +9,7 @@ const payrollRouter = Router();
 payrollRouter.get('/dashboard/status', PayrollController.status)
 payrollRouter.get('/', PayrollController.getSalaryByMonth)
 payrollRouter.post('/', PayrollController.create)
+payrollRouter.put('/:id', PayrollController.update);
+payrollRouter.delete('/:id', PayrollController.delete)
+
 export default payrollRouter;

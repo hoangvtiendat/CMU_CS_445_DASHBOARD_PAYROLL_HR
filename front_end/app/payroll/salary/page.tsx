@@ -45,9 +45,17 @@ export default function SalaryPage() {
   const [selectedYear, setSelectedYear] = useState("2025")
 
   useEffect(() => {
+    // const currentDate = new Date();
+    // const currentMonthName = currentDate.toLocaleString("default", { month: "long" }); // Ví dụ: "June"
+    // const currentYear = currentDate.getFullYear().toString(); // Ví dụ: "2025"
+
+    // // Cập nhật selectedMonthName và selectedYear
+    // setSelectedMonthName(currentMonthName);
+    // setSelectedYear(currentYear);
     const fetchData = async () => {
       setIsLoading(true)
       try {
+
         // Combine month and year for API call
         const monthYearString = `${selectedMonthName} ${selectedYear}`
         setSelectedMonth(monthYearString)
@@ -279,7 +287,8 @@ export default function SalaryPage() {
     if (!salaryToEdit) return
 
     // Find the employee name
-    const employeeName = salaryToEdit.FullName
+
+    const formattedSalaryMonth = formatDateToYYYYMMDD(salaryToEdit.SalaryMonth);
 
     // Set the form values
     setNewSalary({
@@ -287,12 +296,14 @@ export default function SalaryPage() {
       BaseSalary: salaryToEdit.BaseSalary,
       Bonus: salaryToEdit.Bonus,
       Deductions: salaryToEdit.Deductions,
-      SalaryMonth: salaryToEdit.SalaryMonth instanceof Date
-        ? salaryToEdit.SalaryMonth.toISOString().split("T")[0]
-        : salaryToEdit.SalaryMonth,
+      // SalaryMonth: salaryToEdit.SalaryMonth instanceof Date
+      //   ? salaryToEdit.SalaryMonth.toISOString().split("T")[0]
+      //   : salaryToEdit.SalaryMonth,
+      SalaryMonth: formattedSalaryMonth
     })
 
     // Set editing mode
+    setSelectedMonth(formattedSalaryMonth);
     setIsEditing(true)
     setEditingSalaryId(SalaryID)
     setIsAddDialogOpen(true)
@@ -324,10 +335,10 @@ export default function SalaryPage() {
 
   const formatDateToYYYYMMDD = (date: Date | string) => {
     const d = new Date(date);
-    console.log("d1: ", d)
-    const a = d.toISOString().split("T")[0]; // Trả về định dạng YYYY-MM-DD
-    console.log("d2: ", a);
-    return a;
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0"); // Tháng bắt đầu từ 0 nên cần +1
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`; // Trả về định dạng YYYY-MM-DD
   };
 
   // Update the handleSaveSalary function to maintain the employee ID when editing
@@ -396,9 +407,9 @@ export default function SalaryPage() {
           Deductions: deductions,
           SalaryMonth: formatDateToYYYYMMDD(newSalary.SalaryMonth || selectedMonth),
         }
-        console.log("salary data: ", salaryData);
+
         const response = await salaryApi.create(salaryData)
-        console.log("res: ", response);
+
         if (!response.success) {
           throw new Error(response.error || "Failed to add salary record")
         }
@@ -564,7 +575,7 @@ export default function SalaryPage() {
                   BaseSalary: 0,
                   Bonus: 0,
                   Deductions: 0,
-                  SalaryMonth: new Date(selectedMonth).toISOString().split("T")[0],
+                  SalaryMonth: formatDateToYYYYMMDD(new Date()),
                 })
               }
             }}
@@ -618,7 +629,7 @@ export default function SalaryPage() {
                       id="SalaryMonth"
                       name="SalaryMonth"
                       type="date"
-                      value={selectedMonth}
+                      value={newSalary.SalaryMonth}
                       onChange={handleInputChange}
                     />
                   </div>

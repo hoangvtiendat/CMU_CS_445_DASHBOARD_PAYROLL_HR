@@ -68,6 +68,40 @@ export const PayrollController = {
                 error: (error as Error).message,
             });
         }
+    },
+
+    async update(req: Request, res: Response) {
+        try {
+            const data = req.body
+            const id = Number(req.params.id);
+            
+            if (!data) {
+                throw new Error("please fill data");
+            }
+   
+            const serviceResponse = await PayrollService.update(id, data);
+            handleServiceResponse(serviceResponse, res);
+        } catch (error) {
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+                status: 'Failed',
+                message: 'Error create record ',
+                error: (error as Error).message,
+            });
+        }
+    },
+
+    async delete(req: Request, res: Response) {
+        try {
+            const id = Number(req.params.id);
+            const serviceResponse = await PayrollService.delete(id);
+            handleServiceResponse(serviceResponse, res);
+        } catch (error) {
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+                status: 'Failed',
+                message: 'Error create record ',
+                error: (error as Error).message,
+            });
+        }
     }
 
 };

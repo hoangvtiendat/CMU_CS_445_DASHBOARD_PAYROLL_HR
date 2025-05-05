@@ -90,7 +90,7 @@ export const EmployeeService = {
             if (!newEmployee) {
                 throw new Error("Error create employee")
             }
-            console.log("new employee:", newEmployee)
+         
             return new ServiceResponse<MSSQLEmployee | MySQLEmployee | null>(
                 ResponseStatus.Success,
                 'Employee created successfully',

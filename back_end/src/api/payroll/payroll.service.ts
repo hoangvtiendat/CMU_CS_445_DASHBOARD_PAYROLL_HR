@@ -81,6 +81,54 @@ export const PayrollService = {
                 StatusCodes.INTERNAL_SERVER_ERROR
             );
         }
+    },
+
+    update: async (id: number, data: Partial<Salary>): Promise<ServiceResponse<Salary | null>> => {
+        try {
+            if (data.BaseSalary == undefined || data.BaseSalary == null || data.Bonus == undefined || data.Bonus == null || data.SalaryMonth == null || data.SalaryMonth == undefined || data.Deductions == null || data.Deductions == undefined) {
+                throw new Error("Please fill data!");
+            }
+            if (!id) {
+                throw new Error("Please choose record")
+            }
+
+            const salaryUpdate = await salaryRepository.update(id, data);
+            return new ServiceResponse<Salary | null>(
+                ResponseStatus.Success,
+                'updating salary record successfull',
+                salaryUpdate,
+                StatusCodes.OK
+            );
+        } catch (error) {
+            const errorMessage = `Error creating salary record: ${(error as Error).message}`;
+            return new ServiceResponse(
+                ResponseStatus.Failed,
+                errorMessage,
+                null,
+                StatusCodes.INTERNAL_SERVER_ERROR
+            );
+        }
+
+    },
+
+    delete: async (id: number): Promise<ServiceResponse<string>> => {
+        try {
+            const salaryDelete: string = await salaryRepository.delete(id);
+            return new ServiceResponse<string>(
+                ResponseStatus.Success,
+                'deleting salary record successful',
+                salaryDelete,
+                StatusCodes.OK
+            );
+        } catch (error) {
+            const errorMessage = `Error deleting salary record: ${(error as Error).message}`;
+            return new ServiceResponse(
+                ResponseStatus.Failed,
+                errorMessage,
+                'delete failed',
+                StatusCodes.INTERNAL_SERVER_ERROR
+            );
+        }
     }
 
 }
