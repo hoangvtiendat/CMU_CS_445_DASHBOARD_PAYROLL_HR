@@ -43,6 +43,8 @@ export default function AdminDashboard() {
 
         // Fetch payroll stats
         const payrollStatsResponse = await dashboardApi.getPayrollStats()
+        console.log("payrollStatsResponse: ", payrollStatsResponse.data.data)
+
         if (!payrollStatsResponse.success || !payrollStatsResponse.data) {
           throw new Error(payrollStatsResponse.error || "Failed to fetch payroll statistics")
         }
@@ -53,7 +55,7 @@ export default function AdminDashboard() {
         if (!alertsResponse.success || !alertsResponse.data) {
           throw new Error(alertsResponse.error || "Failed to fetch alerts")
         }
-        setAlerts(alertsResponse.data.data)
+        // setAlerts(alertsResponse.data.data)
       } catch (error) {
         toast({
           variant: "destructive",
@@ -62,77 +64,77 @@ export default function AdminDashboard() {
         })
 
         // Set mock data if API fails
-        setEmployeeStats({
-          totalEmployees: 100,
-          totalDepartments: 4,
-          employeesByDepartment: [ 
-            { name: "Engineering", value: 45 },
-            { name: "Marketing", value: 20 },
-            { name: "Sales", value: 25 },
-            { name: "HR", value: 10 },
-          ],
-          employeesByPosition: [
-            { name: "Developer", value: 35 },
-            { name: "Manager", value: 15 },
-            { name: "Designer", value: 10 },
-            { name: "Analyst", value: 20 },
-            { name: "Other", value: 20 },
-          ],
-          employeesByStatus: [
-            { name: "Active", count: 85 },
-            { name: "On Leave", count: 10 },
-            { name: "Probation", count: 5 },
-          ],
-        })
+        // setEmployeeStats({
+        //   totalEmployees: 100,
+        //   totalDepartments: 4,
+        //   employeesByDepartment: [
+        //     { name: "Engineering", value: 45 },
+        //     { name: "Marketing", value: 20 },
+        //     { name: "Sales", value: 25 },
+        //     { name: "HR", value: 10 },
+        //   ],
+        //   employeesByPosition: [
+        //     { name: "Developer", value: 35 },
+        //     { name: "Manager", value: 15 },
+        //     { name: "Designer", value: 10 },
+        //     { name: "Analyst", value: 20 },
+        //     { name: "Other", value: 20 },
+        //   ],
+        //   employeesByStatus: [
+        //     { name: "Active", count: 85 },
+        //     { name: "On Leave", count: 10 },
+        //     { name: "Probation", count: 5 },
+        //   ],
+        // })
 
-        setPayrollStats({
-          totalMonthlyPayroll: 767000,
-          averageSalary: 7670,
-          monthlySalaryByDepartment: [
-            {
-              name: "Jan",
-              Engineering: 250000,
-              Marketing: 120000,
-              Sales: 180000,
-              HR: 80000,
-            },
-            {
-              name: "Feb",
-              Engineering: 260000,
-              Marketing: 125000,
-              Sales: 190000,
-              HR: 82000,
-            },
-            {
-              name: "Mar",
-              Engineering: 270000,
-              Marketing: 130000,
-              Sales: 200000,
-              HR: 85000,
-            },
-            {
-              name: "Apr",
-              Engineering: 280000,
-              Marketing: 135000,
-              Sales: 210000,
-              HR: 87000,
-            },
-            {
-              name: "May",
-              Engineering: 290000,
-              Marketing: 140000,
-              Sales: 220000,
-              HR: 90000,
-            },
-            {
-              name: "Jun",
-              Engineering: 300000,
-              Marketing: 145000,
-              Sales: 230000,
-              HR: 92000,
-            },
-          ],
-        })
+        // setPayrollStats({
+        //   totalMonthlyPayroll: 767000,
+        //   averageSalary: 7670,
+        //   monthlySalaryByDepartment: [
+        //     {
+        //       name: "Jan",
+        //       Engineering: 250000,
+        //       Marketing: 120000,
+        //       Sales: 180000,
+        //       HR: 80000,
+        //     },
+        //     {
+        //       name: "Feb",
+        //       Engineering: 260000,
+        //       Marketing: 125000,
+        //       Sales: 190000,
+        //       HR: 82000,
+        //     },
+        //     {
+        //       name: "Mar",
+        //       Engineering: 270000,
+        //       Marketing: 130000,
+        //       Sales: 200000,
+        //       HR: 85000,
+        //     },
+        //     {
+        //       name: "Apr",
+        //       Engineering: 280000,
+        //       Marketing: 135000,
+        //       Sales: 210000,
+        //       HR: 87000,
+        //     },
+        //     {
+        //       name: "May",
+        //       Engineering: 290000,
+        //       Marketing: 140000,
+        //       Sales: 220000,
+        //       HR: 90000,
+        //     },
+        //     {
+        //       name: "Jun",
+        //       Engineering: 300000,
+        //       Marketing: 145000,
+        //       Sales: 230000,
+        //       HR: 92000,
+        //     },
+        //   ],
+        // })
 
         setAlerts([
           {
@@ -208,7 +210,7 @@ export default function AdminDashboard() {
           />
           <StatCard
             title="Total Departments"
-            value={displayEmployeeStats.totalDepartments}
+            value={"employeesByDepartment" in displayEmployeeStats && Array.isArray(displayEmployeeStats.employeesByDepartment) ? displayEmployeeStats.employeesByDepartment.length : 0}
             icon={<Building2 className="h-4 w-4 text-muted-foreground" />}
           />
         </div>
@@ -243,8 +245,7 @@ export default function AdminDashboard() {
                     }
                   />
                   <Legend />
-                  <Bar dataKey="Engineering" fill="#8884d8" />
-                  <Bar dataKey="Marketing" fill="#82ca9d" />
+                  <Bar dataKey="TechnologyInformation" fill="#82ca9d" />
                   <Bar dataKey="Sales" fill="#ffc658" />
                   <Bar dataKey="HR" fill="#ff8042" />
                 </BarChart>

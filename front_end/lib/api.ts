@@ -177,7 +177,7 @@ export const accountApi = {
 
 // Dashboard statistics APIs
 export const dashboardApi = {
-  getEmployeeStats: (): Promise<ApiResponse<EmployeeStats>> => apiRequest<EmployeeStats>("/dashboard/status"),
+  getEmployeeStats: (): Promise<ApiResponse<EmployeeStats>> => apiRequest<EmployeeStats>("/employees/status"),
 
   getPayrollStats: (): Promise<ApiResponse<PayrollStats>> => apiRequest<PayrollStats>("/salaries/dashboard/status"),
 }

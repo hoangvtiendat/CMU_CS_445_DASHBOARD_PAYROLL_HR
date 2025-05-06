@@ -41,7 +41,7 @@ export default function SalaryPage() {
   const [isEditing, setIsEditing] = useState(false)
   const [editingSalaryId, setEditingSalaryId] = useState<number | null>(null)
 
-  const [selectedMonthName, setSelectedMonthName] = useState("April")
+  const [selectedMonthName, setSelectedMonthName] = useState("May")
   const [selectedYear, setSelectedYear] = useState("2025")
 
   useEffect(() => {
