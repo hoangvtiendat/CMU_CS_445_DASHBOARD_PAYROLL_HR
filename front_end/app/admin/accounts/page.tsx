@@ -31,12 +31,11 @@ export default function AccountsPage() {
   const [employees, setEmployees] = useState<Employee[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [newAccount, setNewAccount] = useState<Partial<CreateAccountRequest>>({
-    username: "",
-    password: "",
-    email: "",
-    fullName: "",
-    role: "",
-    employeeId: undefined,
+    Username: "",
+    Password: "",
+    Email: "",
+    Role: "",
+    Employee: undefined,
   })
   const [confirmPassword, setConfirmPassword] = useState("")
   const [isEditing, setIsEditing] = useState(false)
@@ -48,6 +47,7 @@ export default function AccountsPage() {
       try {
         // Fetch accounts
         const accountsResponse = await accountApi.getAll()
+        console.log("accountsResponse: ", accountsResponse)
         if (!accountsResponse.success || !accountsResponse.data) {
           throw new Error(accountsResponse.error || "Failed to fetch accounts")
         }
@@ -67,48 +67,48 @@ export default function AccountsPage() {
         })
 
         // Set mock data if API fails
-        setAccounts([
-          {
-            id: 1,
-            fullName: "John Doe",
-            username: "john.doe",
-            email: "john.doe@example.com",
-            role: "Employee",
-            employeeId: 1,
-          },
-          {
-            id: 2,
-            fullName: "Jane Smith",
-            username: "jane.smith",
-            email: "jane.smith@example.com",
-            role: "Employee",
-            employeeId: 2,
-          },
-          {
-            id: 3,
-            fullName: "HR Manager",
-            username: "hr",
-            email: "hr@example.com",
-            role: "HR Manager",
-            employeeId: 4,
-          },
-          {
-            id: 4,
-            fullName: "Payroll Manager",
-            username: "payroll",
-            email: "payroll@example.com",
-            role: "Payroll Manager",
-            employeeId: null,
-          },
-          {
-            id: 5,
-            fullName: "Admin",
-            username: "admin",
-            email: "admin@example.com",
-            role: "Admin",
-            employeeId: null,
-          },
-        ])
+        // setAccounts([
+        //   {
+        //     id: 1,
+        //     FullName: "John Doe",
+        //     username: "john.doe",
+        //     email: "john.doe@example.com",
+        //     role: "Employee",
+        //     employeeId: 1,
+        //   },
+        //   {
+        //     id: 2,
+        //     fullName: "Jane Smith",
+        //     username: "jane.smith",
+        //     email: "jane.smith@example.com",
+        //     role: "Employee",
+        //     employeeId: 2,
+        //   },
+        //   {
+        //     id: 3,
+        //     fullName: "HR Manager",
+        //     username: "hr",
+        //     email: "hr@example.com",
+        //     role: "HR Manager",
+        //     employeeId: 4,
+        //   },
+        //   {
+        //     id: 4,
+        //     fullName: "Payroll Manager",
+        //     username: "payroll",
+        //     email: "payroll@example.com",
+        //     role: "Payroll Manager",
+        //     employeeId: null,
+        //   },
+        //   {
+        //     id: 5,
+        //     fullName: "Admin",
+        //     username: "admin",
+        //     email: "admin@example.com",
+        //     role: "Admin",
+        //     employeeId: null,
+        //   },
+        // ])
 
         setEmployees([
           {
@@ -186,7 +186,7 @@ export default function AccountsPage() {
   const handleAddAccount = async () => {
     try {
       // Validate required fields
-      if (!newAccount.username || !newAccount.email || !newAccount.fullName || !newAccount.role) {
+      if (!newAccount.Username || !newAccount.Email || !newAccount.Employee || !newAccount.Role) {
         toast({
           variant: "destructive",
           title: "Validation Error",
@@ -196,7 +196,7 @@ export default function AccountsPage() {
       }
 
       // Validate password confirmation for new accounts
-      if (!isEditing && newAccount.password !== confirmPassword) {
+      if (!isEditing && newAccount.Password !== confirmPassword) {
         toast({
           variant: "destructive",
           title: "Password Error",
@@ -208,37 +208,38 @@ export default function AccountsPage() {
       if (isEditing && editingAccountId) {
         // Update existing account
         const accountData: UpdateAccountRequest = {
-          id: editingAccountId,
-          username: newAccount.username,
-          email: newAccount.email,
-          fullName: newAccount.fullName,
-          role: newAccount.role,
-          employeeId: newAccount.employeeId ? Number(newAccount.employeeId) : undefined,
+          Id: editingAccountId,
+          Username: newAccount.Username,
+          FullName: newAccount.FullName,
+          Password: "",
+          Email: newAccount.Email,
+          Role: newAccount.Role,
+          Employee: newAccount.Employee,
         }
 
         // Only include password if it was changed
-        if (newAccount.password) {
-          accountData.password = newAccount.password
+        if (newAccount.Password) {
+          accountData.Password = newAccount.Password
         }
 
         const response = await accountApi.update(accountData)
-
+        console.log("response: ", response);
         if (!response.success) {
           throw new Error(response.error || "Failed to update account")
         }
 
         // Update the account in the list
-        setAccounts(accounts.map((account) => (account.id === editingAccountId ? response.data!.data! : account)))
+        setAccounts(accounts.map((account) => (account.Id === editingAccountId ? response.data!.data! : account)))
 
         toast({
           title: "Account updated",
-          description: `Account for ${newAccount.fullName} has been updated successfully.`,
+          description: `Account for ${newAccount.Employee} has been updated successfully.`,
         })
       } else {
         // Create new account
         const accountData: CreateAccountRequest = {
           ...(newAccount as CreateAccountRequest),
-          employeeId: newAccount.employeeId ? Number(newAccount.employeeId) : undefined,
+          Employee: newAccount.Employee
         }
 
         const response = await accountApi.create(accountData)
@@ -252,7 +253,7 @@ export default function AccountsPage() {
 
         toast({
           title: "Account created",
-          description: `Account for ${newAccount.fullName} has been created successfully.`,
+          description: `Account for ${newAccount.Employee} has been created successfully.`,
         })
       }
 
@@ -262,12 +263,11 @@ export default function AccountsPage() {
 
       // Reset form
       setNewAccount({
-        username: "",
-        password: "",
-        email: "",
-        fullName: "",
-        role: "",
-        employeeId: undefined,
+        Username: "",
+        Password: "",
+        Email: "",
+        Role: "",
+        Employee: undefined,
       })
       setConfirmPassword("")
     } catch (error) {
@@ -282,23 +282,24 @@ export default function AccountsPage() {
   // Column definitions for the accounts table
   const columns = [
     {
-      accessorKey: "id",
+      accessorKey: "Id",
       header: "ID",
     },
     {
-      accessorKey: "fullName",
-      header: "Full Name",
-    },
-    {
-      accessorKey: "username",
+      accessorKey: "Username",
       header: "Username",
     },
     {
-      accessorKey: "email",
+      accessorKey: "Email",
       header: "Email",
     },
+
     {
-      accessorKey: "role",
+      accessorKey: "FullName",
+      header: "Employee",
+    },
+    {
+      accessorKey: "Role",
       header: "Role",
     },
     {
@@ -307,10 +308,10 @@ export default function AccountsPage() {
         const account = row.original as Account
         return (
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" onClick={() => handleEditAccount(account.id)}>
+            <Button variant="ghost" size="icon" onClick={() => handleEditAccount(account.Id)}>
               <UserCog className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={() => handleDeleteAccount(account.id)}>
+            <Button variant="ghost" size="icon" onClick={() => handleDeleteAccount(account.Id)}>
               <Trash2 className="h-4 w-4" />
             </Button>
           </div>
@@ -321,17 +322,18 @@ export default function AccountsPage() {
 
   const handleEditAccount = (id: number) => {
     // Find the account to edit
-    const accountToEdit = accounts.find((account) => account.id === id)
+    const accountToEdit = accounts.find((account) => account.Id === id)
+    console.log("acc to edit: ", accountToEdit);
     if (!accountToEdit) return
 
     // Set the form values
     setNewAccount({
-      username: accountToEdit.username,
-      email: accountToEdit.email,
-      fullName: accountToEdit.fullName,
-      role: accountToEdit.role,
-      employeeId: accountToEdit.employeeId || undefined,
-      password: "", // Password field is empty when editing
+      Username: accountToEdit.Username,
+      Email: accountToEdit.Email,
+      Role: accountToEdit.Role,
+      Employee: accountToEdit.EmployeeID?.toString(),
+      FullName: accountToEdit.FullName,
+      Password: "", // Password field is empty when editing
     })
 
     // Set editing mode
@@ -349,7 +351,7 @@ export default function AccountsPage() {
       }
 
       // Remove the deleted account from the list
-      setAccounts(accounts.filter((account) => account.id !== id))
+      setAccounts(accounts.filter((account) => account.Id !== id))
 
       toast({
         title: "Account deleted",
@@ -380,12 +382,11 @@ export default function AccountsPage() {
                 setIsEditing(false)
                 setEditingAccountId(null)
                 setNewAccount({
-                  username: "",
-                  password: "",
-                  email: "",
-                  fullName: "",
-                  role: "",
-                  employeeId: undefined,
+                  Username: "",
+                  Password: "",
+                  Email: "",
+                  Role: "",
+                  Employee: undefined,
                 })
                 setConfirmPassword("")
               }
@@ -408,19 +409,41 @@ export default function AccountsPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="username">Username</Label>
-                    <Input id="username" name="username" value={newAccount.username} onChange={handleInputChange} />
+                    <Input id="Username" name="Username" value={newAccount.Username} onChange={handleInputChange} />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="fullName">Full Name</Label>
-                    <Input id="fullName" name="fullName" value={newAccount.fullName} onChange={handleInputChange} />
+                    <Label htmlFor="employeeId">Employee</Label>
+                    <Select
+                      value={newAccount.Employee?.toString() || ""}
+                      onValueChange={(value) => handleSelectChange("Employee", value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select employee" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {employees.map((employee) => (
+                          <SelectItem
+                            key={employee.EmployeeID}
+                            value={employee.EmployeeID.toString()} // Sử dụng EmployeeID làm value
+                          >
+                            {employee.FullName} {/* Hiển thị FullName */}
+                          </SelectItem>
+                        ))}
+                        {isEditing && newAccount.Employee && !employees.find(emp => emp.EmployeeID.toString() === newAccount.Employee) && (
+                          <SelectItem value={newAccount.Employee}>
+                            {employees.find(emp => emp.EmployeeID.toString() === newAccount.Employee)?.FullName || "Unknown Employee"}
+                          </SelectItem>
+                        )}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
-                    <Input id="email" name="email" type="email" value={newAccount.email} onChange={handleInputChange} />
+                    <Input id="Email" name="Email" type="email" value={newAccount.Email} onChange={handleInputChange} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="role">Role</Label>
-                    <Select value={newAccount.role} onValueChange={(value) => handleSelectChange("role", value)}>
+                    <Select value={newAccount.Role} onValueChange={(value) => handleSelectChange("Role", value)}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select role" />
                       </SelectTrigger>
@@ -435,10 +458,10 @@ export default function AccountsPage() {
                   <div className="space-y-2">
                     <Label htmlFor="password">Password</Label>
                     <Input
-                      id="password"
-                      name="password"
-                      type="password"
-                      value={newAccount.password}
+                      id="Password"
+                      name="Password"
+                      type="Password"
+                      value={newAccount.Password}
                       onChange={handleInputChange}
                     />
                   </div>
@@ -447,22 +470,12 @@ export default function AccountsPage() {
                     <Input
                       id="confirmPassword"
                       name="confirmPassword"
-                      type="password"
+                      type="Password"
                       value={confirmPassword}
                       onChange={handleInputChange}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="employeeId">Employee ID (if applicable)</Label>
-                    <Input
-                      id="employeeId"
-                      name="employeeId"
-                      type="number"
-                      placeholder="Enter employee ID"
-                      value={newAccount.employeeId?.toString() || ""}
-                      onChange={(e) => handleInputChange(e)}
-                    />
-                  </div>
+
                 </div>
               </div>
               <DialogFooter>
@@ -483,8 +496,8 @@ export default function AccountsPage() {
             <DataTable
               columns={columns}
               data={accounts}
-              searchColumn="username"
-              searchPlaceholder="Search by username..."
+              searchColumn="FullName"
+              searchPlaceholder="Search by any field..."
             />
           </CardContent>
         </Card>

@@ -247,7 +247,7 @@ export default function AdminDashboard() {
                   <Legend />
                   <Bar dataKey="TechnologyInformation" fill="#82ca9d" />
                   <Bar dataKey="Sales" fill="#ffc658" />
-                  <Bar dataKey="HR" fill="#ff8042" />
+                  <Bar dataKey="Marketing" fill="#ff8042" />
                 </BarChart>
               </ResponsiveContainer>
             </div>

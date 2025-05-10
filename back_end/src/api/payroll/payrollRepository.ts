@@ -84,6 +84,7 @@ export const salaryRepository = {
     },
 
     async getSalaryByMonth(month: number, year: number): Promise<SalaryWithEmployee[] | null> {
+        console.log("month: ", month, "year: ", year)
         const salaries = await mysqlRepository
             .createQueryBuilder('salary')
             .innerJoin('employees', 'employee', 'salary.EmployeeID = employee.EmployeeID')
@@ -91,10 +92,10 @@ export const salaryRepository = {
                 'salary.SalaryID AS SalaryID',
                 'salary.EmployeeID AS EmployeeID',
                 'salary.SalaryMonth AS SalaryMonth',
-                'salary.BaseSalary AS BaseSalary',
-                'salary.Bonus AS Bonus',
-                'salary.Deductions AS Deductions',
-                'salary.BaseSalary + salary.Bonus - salary.Deductions AS NetSalary', 'employee.FullName AS FullName', // Lấy tên nhân viên từ bảng employees
+                'ROUND(salary.BaseSalary, 0) AS BaseSalary',
+                'ROUND(salary.Bonus, 0) AS Bonus',
+                'ROUND(salary.Deductions, 0) AS Deductions',
+                'ROUND(salary.BaseSalary + salary.Bonus - salary.Deductions, 0) AS NetSalary', 'employee.FullName AS FullName', // Lấy tên nhân viên từ bảng employees
             ])
             .innerJoin('positions', 'position', 'employee.PositionID = position.PositionID')
             .innerJoin('departments', 'department', 'employee.DepartmentID = department.DepartmentID')
@@ -103,6 +104,8 @@ export const salaryRepository = {
             .where('MONTH(salary.SalaryMonth) = :month', { month })
             .andWhere('YEAR(salary.SalaryMonth) = :year', { year })
             .getRawMany<SalaryWithEmployee>(); // Sử dụng generic để chỉ định kiểu trả về
+
+        console.log("salaries: ", salaries)
 
         return salaries.length > 0 ? salaries : null;
     },
@@ -140,7 +143,7 @@ export const salaryRepository = {
             return 'This payroll record does not exist.';
         }
 
-        await mysqlRepository.delete({SalaryID: id});
+        await mysqlRepository.delete({ SalaryID: id });
         return 'Deleted Salary Record';
 
     }

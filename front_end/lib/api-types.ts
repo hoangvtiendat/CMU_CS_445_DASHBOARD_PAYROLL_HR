@@ -126,31 +126,33 @@ export interface Alert {
 
 // Account types
 export interface Account {
-  id: number
-  fullName: string
-  username: string
-  email: string
-  role: string
-  employeeId: number | null
+  Id: number
+  FullName: string
+  Username: string
+  Email: string
+  Role: string
+  Employee: string
+  EmployeeID:number
 }
 
 export interface CreateAccountRequest {
-  username: string
-  password: string
-  email: string
-  fullName: string
-  role: string
-  employeeId?: number
+  Username: string
+  Password: string
+  FullName: string,
+  Email: string
+  Role: string
+  Employee: string
+  EmployeeID: number
 }
 
 export interface UpdateAccountRequest {
-  id: number
-  username?: string
-  password?: string
-  email?: string
-  fullName?: string
-  role?: string
-  employeeId?: number
+  Id: number
+  Username?: string
+  Password?: string
+  FullName?: string
+  Email?: string
+  Role?: string
+  Employee: string
 }
 
 // Dashboard statistics types

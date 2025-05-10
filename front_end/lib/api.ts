@@ -163,14 +163,14 @@ export const alertApi = {
 
 // Account APIs
 export const accountApi = {
-  getAll: (): Promise<ApiResponse<Account[]>> => apiRequest<Account[]>("/accounts"),
+  getAll: (): Promise<ApiResponse<Account[]>> => apiRequest<Account[]>("/auth"),
 
   getById: (id: number): Promise<ApiResponse<Account>> => apiRequest<Account>(`/accounts/${id}`),
 
   create: (data: CreateAccountRequest): Promise<ApiResponse<Account>> => apiRequest<Account>("/accounts", "POST", data),
 
   update: (data: UpdateAccountRequest): Promise<ApiResponse<Account>> =>
-    apiRequest<Account>(`/accounts/${data.id}`, "PUT", data),
+    apiRequest<Account>(`/auth/${data.Id}`, "PUT", data),
 
   delete: (id: number): Promise<ApiResponse<null>> => apiRequest<null>(`/accounts/${id}`, "DELETE"),
 }

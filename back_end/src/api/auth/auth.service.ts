@@ -48,11 +48,16 @@ export const authService = {
                 tokenType: 'Bearer',
                 role: user.Role as "Employee" | "Hr" | "Payroll" | "Admin",
             };
+            await userRepository.updateAsync(user.Id, {
+                ...user, // Include all existing properties of the user
+                Access_token: token.accessToken,
+                Reset_token: token.refreshToken, // Nếu bạn muốn lưu refreshToken vào Reset_token
+            });
             const responseData = {
                 user: {
                     id: user.Id,
                     username: user.Username,
-                    fullName: user.FullName,
+                    // fullName: user.FullName,
                     email: user.Email,
                     role: user.Role as "Employee" | "Hr" | "Payroll" | "Admin",
                 },
@@ -99,8 +104,65 @@ export const authService = {
                 newUser,
                 StatusCodes.CREATED
             );
-        } catch (ex) {
-            const errorMessage = `Error registering user: ${(ex as Error).message}`;
+        } catch (error) {
+            const errorMessage = `Error registering user: ${(error as Error).message}`;
+            return new ServiceResponse(
+                ResponseStatus.Failed,
+                errorMessage,
+                null,
+                StatusCodes.INTERNAL_SERVER_ERROR
+            );
+        }
+    },
+
+    getAll: async (): Promise<ServiceResponse<(MySQLAccount & { FullName: string })[]>> => {
+        try {
+            console.log(1);
+            const allAccount = await userRepository.getAll();
+            console.log(2);
+
+            if (!allAccount) {
+                throw new Error("empty");
+            }
+            // console.log("all acc: ", allAccount)
+
+            return new ServiceResponse<(MySQLAccount & { FullName: string })[]>(
+                ResponseStatus.Success,
+                'Users retrieved successfully!',
+                allAccount,
+                StatusCodes.OK
+            );
+        } catch (error) {
+            const errorMessage = `Error get all account: ${(error as Error).message}`;
+            return new ServiceResponse(
+                ResponseStatus.Failed,
+                errorMessage,
+                [],
+                StatusCodes.INTERNAL_SERVER_ERROR
+            );
+        }
+    },
+
+    update: async (id: number, data: MySQLAccount): Promise<ServiceResponse<(MySQLAccount | null)>> => {
+        try {
+            const account = await userRepository.findByIdAsync(id);
+            if (!account) {
+                throw new Error("Account not found");
+            }
+
+            const accountUpdated = await userRepository.updateAsync(id, data);
+            if (!accountUpdated) {
+                throw new Error("Error Update")
+            }
+            return new ServiceResponse<(MySQLAccount)>(
+                ResponseStatus.Success,
+                'Users retrieved successfully!',
+                accountUpdated,
+                StatusCodes.OK
+            );
+
+        } catch (error) {
+            const errorMessage = `Error update account: ${(error as Error).message}`;
             return new ServiceResponse(
                 ResponseStatus.Failed,
                 errorMessage,

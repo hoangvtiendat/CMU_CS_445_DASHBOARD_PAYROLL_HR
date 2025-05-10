@@ -16,7 +16,7 @@ interface LoginResponse {
   user: {
     id: number;
     username: string;
-    fullName: string;
+    // fullName: string;
     email: string;
     role: "Employee" | "Hr" | "Payroll" | "Admin"; // Define roles correctly
   };

@@ -5,7 +5,8 @@ import { ResponseStatus } from '../services/serviceResponse';
 import { Login } from './auth.interface';
 import { handleServiceResponse } from '../services/httpHandlerResponse';
 import passport from 'passport'
-import {MySQLAccount} from '../../model/mysql/account.entity'
+import { MySQLAccount } from '../../model/mysql/account.entity'
+import { P } from 'pino';
 interface UserProfile {
   id: string;
   tokenLogin: string;
@@ -43,7 +44,35 @@ export const AuthController = {
       });
     }
   },
-  
+
+  async getAll(req: Request, res: Response) {
+    try {
+      const serviceResponse = await authService.getAll();
+      handleServiceResponse(serviceResponse, res);
+    } catch (error) {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        status: 'Failed',
+        message: 'Error get all account',
+        error: (error as Error).message,
+      });
+    }
+  },
+  async udpate(req: Request, res: Response) {
+    try {
+      const id = Number(req.params.Id);
+      const data = req.body;
+
+      const serviceResponse = await authService.update(id, data);
+      handleServiceResponse(serviceResponse, res);
+    } catch (error) {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        status: 'Failed',
+        message: 'Error update account',
+        error: (error as Error).message,
+      });
+    }
+  }
+
   // async getMe(req: Request, res: Response){
   //   try{
   //     const user = req.user as UserProfile;
