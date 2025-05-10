@@ -71,6 +71,19 @@ export const AuthController = {
         error: (error as Error).message,
       });
     }
+  },
+  async delete(req: Request, res: Response) {
+    try {
+      const id = Number(req.params.Id);
+      const serviceResponse = await authService.delete(id);
+      handleServiceResponse(serviceResponse, res);
+    } catch (error) {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        status: 'Failed',
+        message: 'Error delete account',
+        error: (error as Error).message,
+      });
+    }
   }
 
   // async getMe(req: Request, res: Response){

@@ -167,6 +167,36 @@ export const authService = {
                 StatusCodes.INTERNAL_SERVER_ERROR
             );
         }
+    },
+
+    delete: async (id: number): Promise<ServiceResponse<string>> => {
+        try {
+            const checkAccount = await userRepository.findByIdAsync(id);
+            if (!checkAccount) {
+                throw new Error("This account does not exist")
+            }
+            const userDelete = await userRepository.delete({ Id: id });
+            let res: string;
+            if (userDelete) {
+                res = "DELETE SUCCESSFULL";
+            } else {
+                res = "DELETE FAIL";
+            }
+            return new ServiceResponse<string>(
+                ResponseStatus.Success,
+                'deleting salary record successful',
+                res,
+                StatusCodes.OK
+            );
+        } catch (error) {
+            const errorMessage = `Error delete account: ${(error as Error).message}`;
+            return new ServiceResponse(
+                ResponseStatus.Failed,
+                errorMessage,
+                "DELETE FAIL",
+                StatusCodes.INTERNAL_SERVER_ERROR
+            );
+        }
     }
 }
 

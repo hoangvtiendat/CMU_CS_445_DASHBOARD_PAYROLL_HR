@@ -172,7 +172,7 @@ export const accountApi = {
   update: (data: UpdateAccountRequest): Promise<ApiResponse<Account>> =>
     apiRequest<Account>(`/auth/${data.Id}`, "PUT", data),
 
-  delete: (id: number): Promise<ApiResponse<null>> => apiRequest<null>(`/accounts/${id}`, "DELETE"),
+  delete: (id: number): Promise<ApiResponse<null>> => apiRequest<null>(`/auth/${id}`, "DELETE"),
 }
 
 // Dashboard statistics APIs
