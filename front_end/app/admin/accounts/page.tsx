@@ -172,7 +172,7 @@ export default function AccountsPage() {
         setNewAccount((prev) => ({
           ...prev,
           [name]: Number(value),
-          fullName: selectedEmployee.FullName,
+          // fullName: selectedEmployee.FullName,
           email: selectedEmployee.Email,
         }))
       } else {
@@ -210,11 +210,10 @@ export default function AccountsPage() {
         const accountData: UpdateAccountRequest = {
           Id: editingAccountId,
           Username: newAccount.Username,
-          FullName: newAccount.FullName,
           Password: "",
           Email: newAccount.Email,
           Role: newAccount.Role,
-          Employee: newAccount.Employee,
+          Employee: { EmployeeID: Number(newAccount.Employee) },
         }
 
         // Only include password if it was changed
@@ -297,6 +296,7 @@ export default function AccountsPage() {
     {
       accessorKey: "FullName",
       header: "Employee",
+      
     },
     {
       accessorKey: "Role",
@@ -332,7 +332,6 @@ export default function AccountsPage() {
       Email: accountToEdit.Email,
       Role: accountToEdit.Role,
       Employee: accountToEdit.EmployeeID?.toString(),
-      FullName: accountToEdit.FullName,
       Password: "", // Password field is empty when editing
     })
 

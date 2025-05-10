@@ -43,12 +43,14 @@ export const userRepository = MySQLDataSource.getRepository(MySQLAccount).extend
         return accounts;
     },
 
-    async updateAsync(id: number, data: MySQLAccount): Promise<(MySQLAccount) | null> {
-
+    async updateAsync(id: number, data: MySQLAccount): Promise<(MySQLAccount & { Employee: { EmployeeID: number; FullName: string } }) | null> {
+        // Lấy bản ghi hiện tại
         const existingRecord = await mysqlRepository.findOneBy({ Id: id });
         if (!existingRecord) {
             return null;
         }
+
+        // Gộp dữ liệu mới với dữ liệu hiện tại
         const updatedData = {
             ...existingRecord, // Giữ nguyên các trường hiện tại
             ...data, // Ghi đè các trường được truyền trong data
@@ -57,10 +59,27 @@ export const userRepository = MySQLDataSource.getRepository(MySQLAccount).extend
         // Cập nhật bản ghi
         await mysqlRepository.update({ Id: id }, updatedData);
 
-        // Lấy bản ghi đã cập nhật
-        const updatedRecord = await mysqlRepository.findOneBy({ Id: id });
-        return updatedRecord || null;
+        // Lấy bản ghi đã cập nhật với thông tin Employee
+        const updatedRecord = await this.createQueryBuilder('account')
+            .leftJoinAndSelect('Employees', 'employee', 'account.EmployeeID = employee.EmployeeID')
+            .select([
+               '*'
+            ])
+            .where('account.Id = :id', { id })
+            .getRawOne();
 
+        if (!updatedRecord) {
+            return null;
+        }
+
+        // Trả về dữ liệu với thông tin Employee được gộp vào
+        return {
+            ...updatedRecord,
+            Employee: {
+                EmployeeID: updatedRecord.EmployeeID,
+                FullName: updatedRecord.FullName,
+            },
+        };
     },
 
 

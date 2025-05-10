@@ -87,17 +87,14 @@ export const authService = {
             if (username) {
                 throw new Error('username already exists');
             }
-
             const hashedPassword = await bcrypt.hash(userData.Password, 10);
             const newUser = await userRepository.createUserAsync({
                 ...userData,
                 Password: hashedPassword,
             })
-
             if (!newUser) {
                 throw new Error("Error create user")
             }
-
             return new ServiceResponse<MySQLAccount>(
                 ResponseStatus.Success,
                 'User registered successfully!',

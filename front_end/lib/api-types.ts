@@ -138,7 +138,6 @@ export interface Account {
 export interface CreateAccountRequest {
   Username: string
   Password: string
-  FullName: string,
   Email: string
   Role: string
   Employee: string
@@ -149,10 +148,11 @@ export interface UpdateAccountRequest {
   Id: number
   Username?: string
   Password?: string
-  FullName?: string
   Email?: string
   Role?: string
-  Employee: string
+  Employee: {
+    EmployeeID: number
+  }
 }
 
 // Dashboard statistics types
