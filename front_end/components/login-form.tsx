@@ -47,24 +47,24 @@ export function LoginForm() {
       if (!response.success || !response.data) {
         throw new Error(response.error || "Login failed")
       }
-
-
-
-
+      console.log(1)
       // Store token in localStorage
       if (response.data.data) {
         localStorage.setItem("token", response.data.data.token)
+        localStorage.setItem("employeeID", response.data.data.Employee.EmployeeID);
+        
+
       }
 
       console.log("respon: ", response)
       // Redirect based on role
-      const role = response.data.data?.user?.role
+      const role = response.data.data?.Role
       console.log("role: ", role)
       if (role === "Employee") {
         router.push("/employee/dashboard")
-      } else if (role === "Hr") {
+      } else if (role === "HR Manager") {
         router.push("/hr/dashboard")
-      } else if (role === "Payroll") {
+      } else if (role === "Payroll Manager") {
         router.push("/payroll/dashboard")
       } else if (role === "Admin") {
         router.push("/admin/dashboard")
@@ -140,44 +140,7 @@ export function LoginForm() {
           {isLoading ? "Signing in..." : "Sign in"}
         </Button>
       </form>
-      <div className="mt-4 text-center text-sm text-muted-foreground">
-        <p>Demo accounts:</p>
-        <div className="flex flex-wrap justify-center gap-2 mt-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handleDemoLoginEmployee("employee")}
-            className="border-business-primary/30 text-business-primary hover:bg-business-primary/10"
-          >
-            Employee
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handleDemoLoginHR("hr")}
-            className="border-business-secondary/30 text-business-secondary hover:bg-business-secondary/10"
-          >
-            HR Manager
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handleDemoLoginPayroll("payroll")}
-            className="border-business-accent/30 text-business-accent hover:bg-business-accent/10"
-          >
-            Payroll
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handleDemoLoginAdmin("admin")}
-            className="border-business-dark/30 text-business-dark hover:bg-business-dark/10"
-          >
-            Admin
-          </Button>
-        </div>
-        <p className="mt-2">Use any password (min 6 characters)</p>
-      </div>
+     
     </Form>
   )
 }

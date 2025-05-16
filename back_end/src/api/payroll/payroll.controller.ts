@@ -22,6 +22,34 @@ export const PayrollController = {
         }
     },
 
+    async getById(req: Request, res: Response) {
+        try {
+            const id = Number(req.params.id);
+            const serviceResponse = await PayrollService.getById(id);
+            handleServiceResponse(serviceResponse, res);
+        } catch (error) {
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+                status: 'Failed',
+                message: 'Error get status ',
+                error: (error as Error).message,
+            });
+        }
+    },
+
+    async getByIdEmplpoyee(req: Request, res: Response) {
+        try {
+            const id = Number(req.params.id);
+            const serviceResponse = await PayrollService.getByIdEmployee(id);
+            handleServiceResponse(serviceResponse, res);
+        }
+        catch (error) {
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+                status: 'Failed',
+                message: 'Error get status ',
+                error: (error as Error).message,
+            });
+        }
+    },
     async getSalaryByMonth(req: Request, res: Response) {
         try {
             const date = req.query.month;
@@ -74,11 +102,11 @@ export const PayrollController = {
         try {
             const data = req.body
             const id = Number(req.params.id);
-            
+
             if (!data) {
                 throw new Error("please fill data");
             }
-   
+
             const serviceResponse = await PayrollService.update(id, data);
             handleServiceResponse(serviceResponse, res);
         } catch (error) {

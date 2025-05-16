@@ -1,23 +1,90 @@
 import { MySQLEmployee } from '../../model/mysql/employee.entity';
 import { MSSQLEmployee } from '../../model/mssql/employee.entity';
 import { MSSQLDataSource, MySQLDataSource } from '../../config/typeorm.config';
-
+import { InformationEmployee } from './employee.interface';
+import { Salary } from '../../model/mysql/salary.entity';
 
 const mssqlRepository = MSSQLDataSource.getRepository(MSSQLEmployee);
 const mysqlRepository = MySQLDataSource.getRepository(MySQLEmployee);
-
+const salaryRepository = MySQLDataSource.getRepository(Salary)
 export const employeeRepository = {
     async findAllAsync(): Promise<MSSQLEmployee[]> {
         const mssqlEmployees = await mssqlRepository.find();
         return [...mssqlEmployees];
     },
-    async findByIdAsync(id: number): Promise<MySQLEmployee | null> {
-        const mssqlEmployees = await mssqlRepository.findOneBy({ EmployeeID: id });
-        if (!mssqlEmployees) {
-            const mysqlEmployees = await mysqlRepository.findOneBy({ EmployeeID: id });
-            return mysqlEmployees;
+    async findByIdAsync(id: number): Promise<MSSQLEmployee | null> {
+        const mssqlEmployee = await mssqlRepository.findOne({
+            where: { EmployeeID: id },
+            relations: ['Department', 'Position'], // Thêm các quan hệ cần lấy
+        });
+        return mssqlEmployee;
+    },
+
+    async getEmployeeInformation(id: number): Promise<InformationEmployee | null> {
+        // Lấy thông tin cơ bản của nhân viên
+        const employee = await mysqlRepository
+            .createQueryBuilder('employee')
+            .leftJoinAndSelect('Departments', 'department', 'employee.DepartmentID = department.DepartmentID')
+            .leftJoinAndSelect('Positions', 'position', 'employee.PositionID = position.PositionID')
+            .select([
+                'employee.FullName AS name',
+                'position.PositionName AS role',
+                'department.DepartmentName AS department',
+            ])
+            .where('employee.EmployeeID = :id', { id }) // Thêm điều kiện WHERE
+            .getRawOne(); // Lấy một bản ghi duy nhất
+        if (!employee) {
+            throw new Error("This user does not exist");
         }
-        return mssqlEmployees;
+
+        // Tính tổng NetSalary trong năm hiện tại từ bảng salaries
+        let ytdEarningsResult = await salaryRepository
+            .createQueryBuilder('salaries')
+            .select('SUM(salaries.NetSalary)', 'ytdEarnings')
+            .where('salaries.EmployeeID = :id', { id })
+            .andWhere('YEAR(salaries.SalaryMonth) = YEAR(CURRENT_DATE())') // Lọc theo năm hiện tại
+            .getRawOne();
+        if (!ytdEarningsResult) {
+            ytdEarningsResult = 0;
+        }
+        const ytdEarnings = Number(ytdEarningsResult?.ytdEarnings || 0); // Nếu không có dữ liệu, mặc định là 0
+
+        let baseSalary = await salaryRepository
+            .createQueryBuilder('salaries')
+            .select('salaries.BaseSalary', ' baseSalary')
+            .where('salaries.EmployeeID = :id', { id })
+            .orderBy('salaries.SalaryMonth', 'DESC') // Lấy lần thanh toán gần nhất
+            .getRawOne();
+        console.log("baseSalary: ", baseSalary);
+        if (!baseSalary.baseSalary) {
+            baseSalary = 0; 
+        }
+        // Lấy NetSalary của lần thanh toán gần nhất từ bảng salaries
+        let lastPaymentResult = await salaryRepository
+            .createQueryBuilder('salaries')
+            .select([
+                'salaries.NetSalary AS lastPayment',
+                'salaries.SalaryMonth AS lastSalaryMonth'
+            ])
+            .where('salaries.EmployeeID = :id', { id })
+            .orderBy('salaries.SalaryMonth', 'DESC') // Lấy lần thanh toán gần nhất
+            .getRawOne();
+        if (!lastPaymentResult) {
+            lastPaymentResult = 0; // Trả về null nếu không tìm thấy dữ liệu
+        }
+        const lastPayment = Number(lastPaymentResult?.lastPayment || 0); // Nếu không có dữ liệu, mặc định là 0
+        const lastSalaryMonth = lastPaymentResult?.lastSalaryMonth || null;
+
+        // Trả về thông tin nhân viên theo định dạng của interface InformationEmployee
+        return {
+            name: employee.name,
+            role: employee.role,
+            department: employee.department,
+            baseSalary: Number(baseSalary.baseSalary),
+            ytdEarnings,
+            lastPayment,
+            lastSalaryMonth,
+        };
     },
     async createUserAsync(userData: Partial<MSSQLEmployee>): Promise<MSSQLEmployee | null> {
         const newEmployeeMSSQL = await mssqlRepository.create(userData);
@@ -38,7 +105,7 @@ export const employeeRepository = {
         const mysqlEmployee = await mysqlRepository.findOneBy({ EmployeeID: id });
 
         if (!mssqlEmployee || !mysqlEmployee) {
-            return null;
+            throw new Error("This user does not exist");
         }
 
         if (mssqlEmployee) {
@@ -181,8 +248,7 @@ export const employeeRepository = {
             throw new Error("This user does not exist")
         }
         const check = await mysqlRepository.delete({ EmployeeID: id });
-        if(!check)
-        {
+        if (!check) {
             throw new Error("Error delete employee")
         }
         await mssqlRepository.delete({ EmployeeID: id });

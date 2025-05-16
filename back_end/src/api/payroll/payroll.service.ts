@@ -33,6 +33,51 @@ export const PayrollService = {
         }
     },
 
+    getById: async (id: number): Promise<ServiceResponse<Salary | null>> => {
+        try {
+            const salary = await salaryRepository.getById(id);
+            if (!salary) {
+                throw new Error("This user does not exist")
+            }
+            return new ServiceResponse<Salary | null>(
+                ResponseStatus.Success,
+                'get salary by id successfull',
+                salary,
+                StatusCodes.OK
+            );
+        } catch (error) {
+            const errorMessage = `Error fetching get salary by id: ${(error as Error).message}`;
+            return new ServiceResponse(
+                ResponseStatus.Failed,
+                errorMessage,
+                null,
+                StatusCodes.INTERNAL_SERVER_ERROR
+            );
+        }
+    },
+
+    getByIdEmployee: async (id: number): Promise<ServiceResponse<Salary[] | null>> => {
+        try {
+            const salary = await salaryRepository.getByIdEmployee(id);
+            if (!salary) {
+                throw new Error("This user does not exist")
+            }
+            return new ServiceResponse<Salary[] | null>(
+                ResponseStatus.Success,
+                'get salary by id employee successfull',
+                salary,
+                StatusCodes.OK
+            );
+        } catch (error) {
+            const errorMessage = `Error fetching get salary by id employee: ${(error as Error).message}`;
+            return new ServiceResponse(
+                ResponseStatus.Failed,
+                errorMessage,
+                null,
+                StatusCodes.INTERNAL_SERVER_ERROR
+            );
+        }
+    },
     getSalaryByMonth: async (month: number, year: number): Promise<ServiceResponse<Salary[] | null>> => {
         try {
             const result = await salaryRepository.getSalaryByMonth(month, year);

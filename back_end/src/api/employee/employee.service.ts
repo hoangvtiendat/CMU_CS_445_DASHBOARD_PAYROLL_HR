@@ -6,6 +6,7 @@ import {
 import { StatusCodes } from 'http-status-codes';
 import { MySQLEmployee } from '../../model/mysql/employee.entity';
 import { MSSQLEmployee } from '../../model/mssql/employee.entity';
+import { InformationEmployee } from './employee.interface';
 
 export const EmployeeService = {
 
@@ -18,8 +19,8 @@ export const EmployeeService = {
                 users ?? [],
                 StatusCodes.OK
             )
-        } catch (ex) { 
-            const errorMessage = `Error get Employee user: ${(ex as Error).message}`;
+        } catch (ex) {
+            const errorMessage = `Error get Employee: ${(ex as Error).message}`;
             return new ServiceResponse(
                 ResponseStatus.Failed,
                 errorMessage,
@@ -29,6 +30,60 @@ export const EmployeeService = {
         }
     },
 
+    getById: async (id: number): Promise<ServiceResponse<MSSQLEmployee | null>> => {
+        try {
+            const employee = await employeeRepository.findByIdAsync(id);
+            if (!employee) {
+                throw new Error("This user does not exist")
+            }
+            return new ServiceResponse<MSSQLEmployee | null>(
+                ResponseStatus.Success,
+                'Employee found',
+                employee,
+                StatusCodes.OK
+            );
+        } catch (error) {
+            const errorMessage = `Error getaa Employee by id: ${(error as Error).message}`;
+            return new ServiceResponse(
+                ResponseStatus.Failed,
+                errorMessage,
+                null,
+                StatusCodes.INTERNAL_SERVER_ERROR
+            );
+        }
+    },
+    information: async (id: number): Promise<ServiceResponse<InformationEmployee | null>> => {
+        try {
+            const employee = await employeeRepository.findByIdAsync(id);
+            console.log("employaaaee: ", employee);
+            if (!employee) {
+                throw new Error("This user does not exist")
+            }
+
+            const informationEmployee = await employeeRepository.getEmployeeInformation(id)
+            console.log("informationEmployee: ", informationEmployee);
+            if (!informationEmployee) {
+                throw new Error("This userzz does not exist")
+            }
+            return new ServiceResponse<InformationEmployee | null>(
+                ResponseStatus.Success,
+                'Employee found',
+                informationEmployee,
+                StatusCodes.OK
+            );
+
+
+
+        } catch (error) {
+            const errorMessage = `Error get Employee by id: ${(error as Error).message}`;
+            return new ServiceResponse(
+                ResponseStatus.Failed,
+                errorMessage,
+                null,
+                StatusCodes.INTERNAL_SERVER_ERROR
+            );
+        }
+    },
     status: async (): Promise<ServiceResponse<{ totalEmployees: number; employeesByDepartment: any; employeesByPosition: any; employeesByStatus: any } | null>> => {
         try {
             const status = await employeeRepository.status();
@@ -90,7 +145,7 @@ export const EmployeeService = {
             if (!newEmployee) {
                 throw new Error("Error create employee")
             }
-         
+
             return new ServiceResponse<MSSQLEmployee | MySQLEmployee | null>(
                 ResponseStatus.Success,
                 'Employee created successfully',
@@ -108,7 +163,7 @@ export const EmployeeService = {
         }
     },
 
-delete: async (id: number): Promise<ServiceResponse<null>> => {
+    delete: async (id: number): Promise<ServiceResponse<null>> => {
         try {
             const deleteResult = await employeeRepository.deleteUserAsync(id);
             if (!deleteResult) {
@@ -129,7 +184,8 @@ delete: async (id: number): Promise<ServiceResponse<null>> => {
                 StatusCodes.INTERNAL_SERVER_ERROR
             );
         }
-    }
+    },
+
 
 }
 

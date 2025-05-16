@@ -4,93 +4,112 @@ import { useEffect, useState } from "react"
 import { DashboardLayout } from "@/components/dashboard-layout"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/data-table"
 import { StatCard } from "@/components/stat-card"
 import { Wallet, Calendar, TrendingUp } from "lucide-react"
 import { employeeApi, salaryApi } from "@/lib/api"
 import type { Employee, Salary } from "@/lib/api-types"
 import { useToast } from "@/components/ui/use-toast"
+import { InformationEmployee } from "@/lib/api-types"
+import { lastDayOfDecade } from "date-fns"
+import { Plus, Trash2, UserCog } from "lucide-react"
 
 // Column definitions for the salary table
 const columns = [
   {
-    accessorKey: "month",
+    accessorKey: "SalaryMonth",
     header: "Month",
+    cell: ({ row }: { row: { getValue: (key: string) => string } }) => {
+      const date = new Date(row.getValue("SalaryMonth"))
+      const formatted = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+      return formatted
+    },
   },
   {
-    accessorKey: "baseSalary",
+    accessorKey: "BaseSalary",
     header: "Base Salary",
     cell: ({ row }: { row: { getValue: (key: string) => string } }) => {
-      const amount = Number.parseFloat(row.getValue("baseSalary"))
+      const amount = Number.parseFloat(row.getValue("BaseSalary"))
       const formatted = new Intl.NumberFormat("en-US", {
         style: "currency",
         currency: "USD",
+        maximumFractionDigits: 0,
       }).format(amount)
       return formatted
     },
   },
   {
-    accessorKey: "bonus",
+    accessorKey: "Bonus",
     header: "Bonus",
     cell: ({ row }: { row: { getValue: (key: string) => string } }) => {
-      const amount = Number.parseFloat(row.getValue("bonus"))
+      const amount = Number.parseFloat(row.getValue("Bonus"))
       const formatted = new Intl.NumberFormat("en-US", {
         style: "currency",
         currency: "USD",
+        maximumFractionDigits: 0,
       }).format(amount)
       return formatted
     },
   },
   {
-    accessorKey: "deductions",
+    accessorKey: "Deductions",
     header: "Deductions",
     cell: ({ row }: { row: { getValue: (key: string) => string } }) => {
-      const amount = Number.parseFloat(row.getValue("deductions"))
+      const amount = Number.parseFloat(row.getValue("Deductions"))
       const formatted = new Intl.NumberFormat("en-US", {
         style: "currency",
         currency: "USD",
+        maximumFractionDigits: 0,
       }).format(amount)
       return formatted
     },
   },
   {
-    accessorKey: "netSalary",
+    accessorKey: "NetSalary",
     header: "Net Salary",
     cell: ({ row }: { row: { getValue: (key: string) => string } }) => {
-      const amount = Number.parseFloat(row.getValue("netSalary"))
+      const amount = Number.parseFloat(row.getValue("NetSalary"))
       const formatted = new Intl.NumberFormat("en-US", {
         style: "currency",
         currency: "USD",
+        maximumFractionDigits: 0,
       }).format(amount)
       return formatted
     },
   },
-  {
-    accessorKey: "actualSalary",
-    header: "Actual Salary Received",
-    cell: ({ row }: { row: { getValue: (key: string) => string } }) => {
-      const amount = Number.parseFloat(row.getValue("actualSalary"))
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-      }).format(amount)
-      return formatted
-    },
-  },
+
 ]
 
 export default function EmployeeDashboard() {
   const { toast } = useToast()
   const [employee, setEmployee] = useState<Employee | null>(null)
-  const [salaryData, setSalaryData] = useState<Salary[]>([])
+  const [salaryData, setSalaryData] = useState<Salary[] | null>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [informationEmployee, setInformationEmployee] = useState<InformationEmployee | null>(null)
+  const [employeeId, setEmployeeId] = useState<number | null>(null);
+
+  useEffect(() => {
+    // Chỉ chạy trên client
+    const id = Number(localStorage.getItem("employeeID"));
+    setEmployeeId(id);
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true)
       try {
         // In a real app, you would get the current user's ID from the auth context
-        const employeeId = 1 // Mock employee ID
+        const employeeId = Number(localStorage.getItem("employeeID")) // Retrieve employee ID from localStorage or use a default value
+
+        //fetch information employee
+        const informationEmployeeResponse = await employeeApi.getInformationEmployee(employeeId)
+        console.log("informationEmployee", informationEmployeeResponse)
+        if (!informationEmployeeResponse.success || !informationEmployeeResponse.data) {
+          throw new Error(informationEmployeeResponse.error || "Failed to fetch employee data")
+        }
+        console.log("informationEmployee", informationEmployeeResponse.data)
+        setInformationEmployee(informationEmployeeResponse.data.data)
 
         // Fetch employee data
         const employeeResponse = await employeeApi.getById(employeeId)
@@ -99,12 +118,17 @@ export default function EmployeeDashboard() {
         }
         setEmployee(employeeResponse.data.data)
 
+        console.log("employee", employeeResponse.data.data)
+
+
         // Fetch salary data
         const salaryResponse = await salaryApi.getByEmployeeId(employeeId)
         if (!salaryResponse.success || !salaryResponse.data) {
           throw new Error(salaryResponse.error || "Failed to fetch salary data")
         }
-        setSalaryData(salaryResponse.data?.data || [])
+
+        setSalaryData(Array.isArray(salaryResponse.data?.data) ? salaryResponse.data.data : [])
+        console.log("salaryData", salaryResponse.data?.data)
       } catch (error) {
         toast({
           variant: "destructive",
@@ -119,75 +143,50 @@ export default function EmployeeDashboard() {
     fetchData()
   }, [toast])
 
-  // Mock data for now - in a real app, this would come from the API
   const employeeData = {
-    name: employee?.FullName || "John Doe",
-    role: "Software Developer",
-    department: employee?.Department || "Engineering",
-    baseSalary: "$5,500.00",
-    ytdEarnings: "$33,080.00",
-    lastPayment: "$5,280.00",
+    name: employee?.FullName || "error fetch",
+    role: informationEmployee?.role || "error fetch",
+    department: informationEmployee?.department || "error fetch",
+    baseSalary: informationEmployee?.baseSalary || 0,
+    ytdEarnings: informationEmployee?.ytdEarnings || 0,
+    lastPayment: informationEmployee?.lastPayment || 0,
+    lastSalaryMonth: informationEmployee?.lastSalaryMonth || "error fetch",
   }
 
-  // Mock salary data if API call fails
-  const mockSalaryData = [
-    {
-      id: 1,
-      month: "January 2023",
-      baseSalary: 5000,
-      bonus: 500,
-      deductions: 200,
-      netSalary: 5300,
-      actualSalary: 5300,
-    },
-    {
-      id: 2,
-      month: "February 2023",
-      baseSalary: 5000,
-      bonus: 0,
-      deductions: 200,
-      netSalary: 4800,
-      actualSalary: 4800,
-    },
-    {
-      id: 3,
-      month: "March 2023",
-      baseSalary: 5000,
-      bonus: 1000,
-      deductions: 200,
-      netSalary: 5800,
-      actualSalary: 5800,
-    },
-    {
-      id: 4,
-      month: "April 2023",
-      baseSalary: 5000,
-      bonus: 300,
-      deductions: 200,
-      netSalary: 5100,
-      actualSalary: 5100,
-    },
-    {
-      id: 5,
-      month: "May 2023",
-      baseSalary: 5000,
-      bonus: 0,
-      deductions: 200,
-      netSalary: 4800,
-      actualSalary: 4800,
-    },
-    {
-      id: 6,
-      month: "June 2023",
-      baseSalary: 5500,
-      bonus: 0,
-      deductions: 220,
-      netSalary: 5280,
-      actualSalary: 5280,
-    },
-  ]
 
-  const displaySalaryData = salaryData.length > 0 ? salaryData : mockSalaryData
+  useEffect(() => {
+    // Chỉ chạy trên client
+    const id = Number(localStorage.getItem("employeeID"));
+    setEmployeeId(id);
+  }, []);
+
+  async function handleCheckIn() {
+    setIsLoading(true)
+    try {
+      
+      const id = Number(localStorage.getItem("employeeID"));
+      const response = await employeeApi.checkin(id)
+
+      if (!response.success) {
+        throw new Error(response.error || "Failed to update profile")
+      }
+
+      toast({
+        title: "Profile updated",
+        description: "Your profile has been updated successfully.",
+      })
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to update profile. Please try again.",
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const displaySalaryData = (salaryData ?? []).length > 0 ? salaryData ?? [] : null
 
   return (
     <DashboardLayout role="employee" userName={employeeData.name}>
@@ -196,6 +195,9 @@ export default function EmployeeDashboard() {
           <h1 className="text-3xl font-bold tracking-tight text-business-dark">Dashboard</h1>
           <p className="text-muted-foreground">Welcome back, {employeeData.name}</p>
         </div>
+        <Button onClick={() => handleCheckIn()}>
+          Check In
+        </Button>
 
         <div className="grid gap-4 md:grid-cols-3">
           <StatCard
@@ -216,7 +218,14 @@ export default function EmployeeDashboard() {
             title="Last Payment"
             value={employeeData.lastPayment}
             icon={<Calendar className="h-4 w-4" />}
-            description="June 2023"
+            description={
+              employeeData.lastSalaryMonth !== "error fetch"
+                ? new Date(employeeData.lastSalaryMonth).toLocaleString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                })
+                : "N/A"
+            }
             variant="success"
           />
         </div>
@@ -244,13 +253,14 @@ export default function EmployeeDashboard() {
               <CardContent>
                 <DataTable
                   columns={columns}
-                  data={displaySalaryData}
-                  searchColumn="month"
+                  data={displaySalaryData ?? []}
+                  searchColumn="SalaryMonth"
                   searchPlaceholder="Search by month..."
                 />
               </CardContent>
             </Card>
           </TabsContent>
+
           <TabsContent value="personal" className="space-y-4">
             <Card className="business-card">
               <CardHeader className="bg-business-light/50">
@@ -260,44 +270,45 @@ export default function EmployeeDashboard() {
                 <div className="grid gap-6 md:grid-cols-2">
                   <div>
                     <h3 className="font-medium text-business-dark">Full Name</h3>
-                    <p className="text-muted-foreground">{employee?.FullName || "John Doe"}</p>
+                    <p className="text-muted-foreground">{employee?.FullName || "error fetch"}</p>
                   </div>
                   <div>
                     <h3 className="font-medium text-business-dark">Date of Birth</h3>
-                    <p className="text-muted-foreground">{employee?.DateOfBirth || "15 May 1985"}</p>
+                    <p className="text-muted-foreground">{employee?.DateOfBirth || "error fetch"}</p>
                   </div>
                   <div>
                     <h3 className="font-medium text-business-dark">Gender</h3>
-                    <p className="text-muted-foreground">{employee?.Gender || "Male"}</p>
+                    <p className="text-muted-foreground">{employee?.Gender || "error fetch"}</p>
                   </div>
                   <div>
                     <h3 className="font-medium text-business-dark">Phone Number</h3>
-                    <p className="text-muted-foreground">{employee?.PhoneNumber || "+1 (555) 123-4567"}</p>
+                    <p className="text-muted-foreground">{employee?.PhoneNumber || "error fetch"}</p>
                   </div>
                   <div>
                     <h3 className="font-medium text-business-dark">Email</h3>
-                    <p className="text-muted-foreground">{employee?.Email || "john.doe@example.com"}</p>
+                    <p className="text-muted-foreground">{employee?.Email || "error fetch"}</p>
                   </div>
                   <div>
                     <h3 className="font-medium text-business-dark">Hire Date</h3>
-                    <p className="text-muted-foreground">{employee?.HireDate || "10 Jan 2020"}</p>
+                    <p className="text-muted-foreground">{employee?.HireDate || "error fetch"}</p>
                   </div>
                   <div>
                     <h3 className="font-medium text-business-dark">Department</h3>
-                    <p className="text-muted-foreground">{typeof employee?.Department === "string" ? employee.Department : "Engineering"}</p>
+                    <p className="text-muted-foreground">{employee?.Department.DepartmentName || "error fetch"}</p>
                   </div>
                   <div>
                     <h3 className="font-medium text-business-dark">Position</h3>
-                    <p className="text-muted-foreground">{employee?.Position?.PositionID || "Software Developer"}</p>
+                    <p className="text-muted-foreground">{employee?.Position.PositionName || "error fetch"}</p>
                   </div>
                   <div>
                     <h3 className="font-medium text-business-dark">Status</h3>
-                    <p className="text-muted-foreground">{employee?.Status || "Active"}</p>
+                    <p className="text-muted-foreground">{employee?.Status || "error fetch"}</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
+
         </Tabs>
       </div>
     </DashboardLayout>

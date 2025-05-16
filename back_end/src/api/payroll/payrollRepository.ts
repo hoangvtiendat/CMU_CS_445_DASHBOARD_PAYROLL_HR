@@ -146,5 +146,29 @@ export const salaryRepository = {
         await mysqlRepository.delete({ SalaryID: id });
         return 'Deleted Salary Record';
 
+    },
+
+    async getById(id: number): Promise<Salary | null> {
+        const salary = await mysqlRepository.findOneBy({ SalaryID: id });
+        return salary;
+    },
+
+    async getByIdEmployee(id: number): Promise<Salary[] | null> {
+        const salary = await mysqlRepository
+            .createQueryBuilder('salary')
+            .innerJoin('employees', 'employee', 'salary.EmployeeID = employee.EmployeeID')
+            .select([
+                'salary.SalaryID AS SalaryID',
+                'salary.EmployeeID AS EmployeeID',
+                'salary.SalaryMonth AS SalaryMonth',
+                'ROUND(salary.BaseSalary, 0) AS BaseSalary',
+                'ROUND(salary.Bonus, 0) AS Bonus',
+                'ROUND(salary.Deductions, 0) AS Deductions',
+                'ROUND(salary.BaseSalary + salary.Bonus - salary.Deductions, 0) AS NetSalary', // Lấy tên nhân viên từ bảng employees
+            ])
+            .where('employee.EmployeeID = :id', { id })
+            .getRawMany<SalaryWithEmployee>(); // Sử dụng generic để chỉ định kiểu trả về
+
+        return salary.length > 0 ? salary : null;
     }
 };

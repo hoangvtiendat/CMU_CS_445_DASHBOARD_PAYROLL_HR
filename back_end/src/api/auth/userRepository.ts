@@ -13,13 +13,45 @@ export const userRepository = MySQLDataSource.getRepository(MySQLAccount).extend
         return this.findOneBy({ Id: id });
     },
 
-    async createUserAsync(userData: Partial<MySQLAccount>): Promise<MySQLAccount> {
+    async createUserAsync(userData: Partial<MySQLAccount>): Promise<(MySQLAccount & { Employee: { EmployeeID: number; FullName: string } }) | null> {
+        // Tạo người dùng mới
         const newUser = this.create(userData);
-        return this.save(newUser);
+        await this.save(newUser);
+
+        // Lấy thông tin người dùng vừa tạo, bao gồm thông tin Employee
+        const createdUser = await this.createQueryBuilder('account')
+            .leftJoinAndSelect('Employees', 'employee', 'account.EmployeeID = employee.EmployeeID')
+            .select([
+                '*',
+            ])
+            .where('account.Id = :id', { id: newUser.Id })
+            .getRawOne();
+
+        if (!createdUser) {
+            return null;
+        }
+
+        // Trả về dữ liệu với thông tin Employee được gộp vào
+        return {
+            ...createdUser,
+            Employee: {
+                EmployeeID: createdUser.employee_EmployeeID,
+                FullName: createdUser.employee_FullName,
+            },
+        };
     },
 
     async findByUsername(username: string): Promise<MySQLAccount | null> {
-        return this.findOneBy({ Username: username })
+        const user = await this.createQueryBuilder('account')
+            .leftJoinAndSelect('account.Employee', 'employee') // Sử dụng mối quan hệ đã định nghĩa trong entity
+            .where('account.Username = :username', { username })
+            .getOne(); // Sử dụng getOne để ánh xạ dữ liệu vào entity
+
+        if (!user) {
+            return null;
+        }
+
+        return user;
     },
     async findByEmail(email: string): Promise<MySQLAccount | null> {
         return this.findOneBy({ Email: email })
@@ -63,7 +95,7 @@ export const userRepository = MySQLDataSource.getRepository(MySQLAccount).extend
         const updatedRecord = await this.createQueryBuilder('account')
             .leftJoinAndSelect('Employees', 'employee', 'account.EmployeeID = employee.EmployeeID')
             .select([
-               '*'
+                '*'
             ])
             .where('account.Id = :id', { id })
             .getRawOne();
@@ -82,6 +114,6 @@ export const userRepository = MySQLDataSource.getRepository(MySQLAccount).extend
         };
     },
 
-    
+
 
 });

@@ -465,6 +465,7 @@ export default function SalaryPage() {
     {
       accessorKey: "SalaryID",
       header: "ID",
+      cell: ({ row }: { row: { index: number } }) => row.index + 1,
     },
     {
       accessorKey: "FullName",
@@ -556,7 +557,11 @@ export default function SalaryPage() {
 
   // Update the DialogContent to show the employee name when editing
   return (
+
     <DashboardLayout role="payroll" userName="Payroll Manager">
+      {/* <Button onClick={() => toast({ title: "Test toast", description: "Toast hoạt động!" })}>
+        Test Toast
+      </Button> */}
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>

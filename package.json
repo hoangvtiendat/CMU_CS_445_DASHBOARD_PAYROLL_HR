@@ -8,6 +8,7 @@
     "jsonwebtoken": "^9.0.2",
     "mssql": "^11.0.1",
     "mysql2": "^3.14.0",
+    "node-cron": "^4.0.5",
     "passport": "^0.7.0",
     "reflect-metadata": "^0.2.2",
     "sonner": "^2.0.3",
@@ -16,6 +17,7 @@
     "typeorm": "^0.3.22"
   },
   "devDependencies": {
+    "@types/jest": "^29.5.14",
     "@types/passport": "^1.0.17"
   }
 }

@@ -25,7 +25,7 @@ export default function AlertsPage() {
         if (!alertsResponse.success || !alertsResponse.data) {
           throw new Error(alertsResponse.error || "Failed to fetch alerts")
         }
-        setAllAlerts(alertsResponse.data)
+        // setAllAlerts(alertsResponse.data.data)
       } catch (error) {
         toast({
           variant: "destructive",

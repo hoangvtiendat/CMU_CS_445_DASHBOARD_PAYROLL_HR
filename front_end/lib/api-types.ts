@@ -21,9 +21,13 @@ export interface LoginResponse {
     username: string
     fullName: string
     email: string
-    role: "Employee" | "Hr" | "Payroll" | "Admin"
+    Role: "Employee" | "Hr" | "Payroll" | "Admin"
   }
+  Role: string
   token: string
+  Employee: {
+    EmployeeID: string,
+  }
 }
 
 // Employee types
@@ -38,13 +42,24 @@ export interface Employee {
   DepartmentId: number
   Department: {
     DepartmentID: number;
+    DepartmentName: string
   }
   Position: {
     PositionID: number;
+    PositionName: string;
   }
+
   Status: string
+}
 
-
+export interface InformationEmployee {
+  name: string,
+  role: string,
+  department: string,
+  baseSalary: number,
+  ytdEarnings: number,
+  lastPayment: number,
+  lastSalaryMonth: string
 
 
 }
@@ -132,7 +147,7 @@ export interface Account {
   Email: string
   Role: string
   Employee: string
-  EmployeeID:number
+  EmployeeID: number
 }
 
 export interface CreateAccountRequest {

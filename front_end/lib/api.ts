@@ -17,6 +17,7 @@ import type {
   UpdateAccountRequest,
   EmployeeStats,
   PayrollStats,
+  InformationEmployee
 } from "./api-types"
 
 // Base API URL - replace with your actual API URL
@@ -93,9 +94,9 @@ export const authApi = {
 // Employee APIs
 export const employeeApi = {
   getAll: (): Promise<ApiResponse<Employee[]>> => apiRequest<Employee[]>("/employees"),
-  status:  (): Promise<ApiResponse<EmployeeStats>> => apiRequest<EmployeeStats>("/employees/status"),
+  status: (): Promise<ApiResponse<EmployeeStats>> => apiRequest<EmployeeStats>("/employees/status"),
   getById: (id: number): Promise<ApiResponse<Employee>> => apiRequest<Employee>(`/employees/${id}`),
-
+  getInformationEmployee: (id: number): Promise<ApiResponse<InformationEmployee>> => apiRequest<InformationEmployee>(`/employees/information/${id}`),
   create: (data: CreateEmployeeRequest): Promise<ApiResponse<Employee>> =>
     apiRequest<Employee>("/employees", "POST", data),
 
@@ -105,7 +106,11 @@ export const employeeApi = {
   delete: (id: number): Promise<ApiResponse<null>> => apiRequest<null>(`/employees/${id}`, "DELETE"),
 
   updateProfile: (id: number, data: Partial<Employee>): Promise<ApiResponse<Employee>> =>
-    apiRequest<Employee>(`/employees/${id}/profile`, "PUT", data),
+    apiRequest<Employee>(`/employees/${id}`, "PUT", data),
+
+   checkin: (id: number): Promise<ApiResponse<Employee>> =>
+    apiRequest<Employee>(`/attendance/checkin/${id}`, "POST",),
+
 }
 
 // Salary APIs
@@ -132,7 +137,7 @@ export const departmentApi = {
 
   getById: (id: number): Promise<ApiResponse<Department>> => apiRequest<Department>(`/departments/${id}`),
 
-  getCount: ():  Promise<ApiResponse<Department>> => apiRequest<Department>("/departments/count")
+  getCount: (): Promise<ApiResponse<Department>> => apiRequest<Department>("/departments/count")
 }
 
 // Position APIs
@@ -167,7 +172,7 @@ export const accountApi = {
 
   getById: (id: number): Promise<ApiResponse<Account>> => apiRequest<Account>(`/accounts/${id}`),
 
-  create: (data: CreateAccountRequest): Promise<ApiResponse<Account>> => apiRequest<Account>("/accounts", "POST", data),
+  create: (data: CreateAccountRequest): Promise<ApiResponse<Account>> => apiRequest<Account>("/auth/register", "POST", data),
 
   update: (data: UpdateAccountRequest): Promise<ApiResponse<Account>> =>
     apiRequest<Account>(`/auth/${data.Id}`, "PUT", data),

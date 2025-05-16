@@ -465,6 +465,7 @@ export default function SalaryPage() {
     {
       accessorKey: "SalaryID",
       header: "ID",
+      cell: ({ row }: { row: { index: number } }) => row.index + 1,
     },
     {
       accessorKey: "FullName",

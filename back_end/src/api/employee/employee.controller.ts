@@ -29,7 +29,37 @@ export const EmployeeController = {
         }
     },
 
+    async getById(req: Request, res: Response) {
+        try {
+            const id = Number(req.params.id);
+            const serviceResponse = await EmployeeService.getById(id);
+            handleServiceResponse(serviceResponse, res);
+        } catch (error) {
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+                status: 'Failed',
+                message: 'Error get employee by id',
+                error: (error as Error).message,
+            });
+        }
+    },
+
+    async information(req: Request, res: Response) {
+        try {
+            const id = Number(req.params.id);
+            console.log("id: ", id);
+            const serviceResponse = await EmployeeService.information(id);
+            handleServiceResponse(serviceResponse, res);
+        } catch (error) {
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+                status: 'Failed',
+                message: 'Error get employee by id',
+                error: (error as Error).message,
+            });
+        }
+    },
+
     async status(req: Request, res: Response) {
+        console.log("status");
         try {
             const serviceResponse = await EmployeeService.status();
             handleServiceResponse(serviceResponse, res);
@@ -74,7 +104,6 @@ export const EmployeeController = {
     async delete(req: Request, res: Response) {
         try {
             const id = Number(req.params.id)
-            console.log("id: ", id);
             const serviceResponse = await EmployeeService.delete(id);
             handleServiceResponse(serviceResponse, res);
         } catch (error) {
@@ -84,7 +113,8 @@ export const EmployeeController = {
                 error: (error as Error).message,
             });
         }
-    }
+    },
+
 
 
 

@@ -44,7 +44,7 @@ export const AuthController = {
       });
     }
   },
-
+  
   async getAll(req: Request, res: Response) {
     try {
       const serviceResponse = await authService.getAll();
@@ -84,33 +84,26 @@ export const AuthController = {
         error: (error as Error).message,
       });
     }
+  },
+
+  async logout(req: Request, res: Response) {
+    try {
+      // Lấy token từ header Authorization
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        throw new Error('No token provided');
+      }
+      const token = authHeader.split(' ')[1];
+      // Gọi service để xử lý logout (ví dụ: blacklist token, xóa session, ...)
+      const serviceResponse = await authService.logout(token);
+      handleServiceResponse(serviceResponse, res);
+    } catch (error) {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        status: 'Failed',
+        message: 'Error logging out',
+        error: (error as Error).message,
+      });
+    }
   }
 
-  // async getMe(req: Request, res: Response){
-  //   try{
-  //     const user = req.user as UserProfile;
-  //     if (!user) {
-  //       return res.status(StatusCodes.UNAUTHORIZED).json({
-  //         status: 'Failed',
-  //         message: 'User not authenticated',
-  //       });
-  //     }
-
-  //     res.status(StatusCodes.OK).json({
-  //       status: 'Success',
-  //       data: {
-  //         id: user.id,
-  //         tokenLogin: user.tokenLogin,
-  //       },
-  //     });
-  //   }
-  //   catch(error)
-  //   {
-  //     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-  //       status: 'Failed',
-  //       message: 'Error register in',
-  //       error: (error as Error).message,
-  //     });
-  //   }
-  // }
 };

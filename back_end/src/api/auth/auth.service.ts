@@ -22,9 +22,10 @@ import { handleServiceResponse } from '../services/httpHandlerResponse';
 
 export const authService = {
 
-    login: async (loginData: Login): Promise<ServiceResponse<LoginResponse | null>> => {
+    login: async (loginData: Login): Promise<ServiceResponse<MySQLAccount| null>> => {
         try {
             const user = await userRepository.findByUsername(loginData.username);
+            console.log("userrr: ", user)
             if (!user) {
                 return new ServiceResponse(
                     ResponseStatus.Failed,
@@ -33,12 +34,13 @@ export const authService = {
                     StatusCodes.NOT_FOUND
                 );
             }
-            if (user.Password !== loginData.password) {
+            const isPasswordValid = await bcrypt.compare(loginData.password, user.Password);
+            if (!isPasswordValid) {
                 return new ServiceResponse(
                     ResponseStatus.Failed,
                     'Password incorrect',
                     null,
-                    StatusCodes.NOT_FOUND
+                    StatusCodes.UNAUTHORIZED
                 );
             }
             const token: Token = {
@@ -54,17 +56,11 @@ export const authService = {
                 Reset_token: token.refreshToken, // Nếu bạn muốn lưu refreshToken vào Reset_token
             });
             const responseData = {
-                user: {
-                    id: user.Id,
-                    username: user.Username,
-                    // fullName: user.FullName,
-                    email: user.Email,
-                    role: user.Role as "Employee" | "Hr" | "Payroll" | "Admin",
-                },
+                ...user,
+                // employeeID: user.Employee ? user.Employee.EmployeeID : 0,
                 token: token.accessToken,
-
             };
-            return new ServiceResponse<LoginResponse>(
+            return new ServiceResponse<MySQLAccount>(
                 ResponseStatus.Success,
                 'Login successful',
                 responseData,
@@ -80,7 +76,7 @@ export const authService = {
             );
         }
     },
-
+    
     register: async (userData: MySQLAccount): Promise<ServiceResponse<MySQLAccount | null>> => {
         try {
             const username = await userRepository.findByUsername(userData.Username);
@@ -142,24 +138,31 @@ export const authService = {
 
     update: async (id: number, data: MySQLAccount): Promise<ServiceResponse<(MySQLAccount | null)>> => {
         try {
+
             const account = await userRepository.findByIdAsync(id);
             if (!account) {
                 throw new Error("Account not found");
             }
 
+
+            if (data.Password) {
+                data.Password = await bcrypt.hash(data.Password, 10);
+            }
+
+
             const accountUpdated = await userRepository.updateAsync(id, data);
             if (!accountUpdated) {
-                throw new Error("Error Update")
+                throw new Error("Error Update");
             }
+
             return new ServiceResponse<(MySQLAccount)>(
                 ResponseStatus.Success,
-                'Users retrieved successfully!',
+                'Account updated successfully!',
                 accountUpdated,
                 StatusCodes.OK
             );
-
         } catch (error) {
-            const errorMessage = `Error update account: ${(error as Error).message}`;
+            const errorMessage = `Error updating account: ${(error as Error).message}`;
             return new ServiceResponse(
                 ResponseStatus.Failed,
                 errorMessage,
@@ -194,6 +197,45 @@ export const authService = {
                 ResponseStatus.Failed,
                 errorMessage,
                 "DELETE FAIL",
+                StatusCodes.INTERNAL_SERVER_ERROR
+            );
+        }
+    },
+
+    logout: async (token: string): Promise<ServiceResponse<string | null>> => {
+        try {
+            let decoded;
+            try {
+                decoded = verifyJwt(token);
+            } catch (err: any) {
+                if (err.name === 'TokenExpiredError') {
+                    // Nếu token hết hạn, vẫn cố gắng lấy userId từ token (nếu có thể)
+                    decoded = (verifyJwt(token) as any);
+                } else {
+                    throw err;
+                }
+            }
+            if (!decoded) { 
+                throw new Error('Invalid token');
+            }
+            const userId = decoded.userId;
+            const user = await userRepository.findByIdAsync(userId);
+            if (!user) {
+                throw new Error('User not found');
+            }
+            await userRepository.updateAsync(userId, { ...user, Reset_token: null, Access_token: null });
+            return new ServiceResponse(
+                ResponseStatus.Success,
+                'Logout successful',
+                null,
+                StatusCodes.OK
+            );
+        } catch (error) {
+            const errorMessage = `Error logging out: ${(error as Error).message}`;
+            return new ServiceResponse(
+                ResponseStatus.Failed,
+                errorMessage,
+                null,
                 StatusCodes.INTERNAL_SERVER_ERROR
             );
         }

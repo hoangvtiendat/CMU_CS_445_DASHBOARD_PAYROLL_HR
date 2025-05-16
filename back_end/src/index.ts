@@ -6,11 +6,12 @@ import { pino } from "pino";
 // import { seedData } from "./config/seeder";
 
 import cors from "cors";
+import './scheduler/attendance.cron'; 
 
 const app = express();
 
 app.use(cors({
-  origin: "http://localhost:3000",  // Chỉ cho phép frontend này truy cập
+  origin: ["http://localhost:3000", "http://192.168.30.127:3000"], // Chỉ cho phép frontend này truy cập
   credentials: true, // Nếu dùng cookie hoặc token
   methods: ["GET", "POST", "PUT", "DELETE"]
 }));

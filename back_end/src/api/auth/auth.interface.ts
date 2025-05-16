@@ -19,6 +19,7 @@ interface LoginResponse {
     // fullName: string;
     email: string;
     role: "Employee" | "Hr" | "Payroll" | "Admin"; // Define roles correctly
+    employeeID: number
   };
   token: string; // Just the token string, not the whole Token object
 }

@@ -110,43 +110,43 @@ export default function AccountsPage() {
         //   },
         // ])
 
-        setEmployees([
-          {
-            EmployeeID: 1,
-            FullName: "John Doe",
-            DateOfBirth: "1985-05-15",
-            Gender: "Male",
-            PhoneNumber: "+1 (555) 123-4567",
-            Email: "john.doe@example.com",
-            HireDate: "2020-01-10",
-            DepartmentId: 1,
-            Department: {
-              DepartmentID: 1
-            },
-            Position: {
-              PositionID: 1,
-            },
-            Status: "Active",
-          },
+        // setEmployees([
+        //   {
+        //     EmployeeID: 1,
+        //     FullName: "John Doe",
+        //     DateOfBirth: "1985-05-15",
+        //     Gender: "Male",
+        //     PhoneNumber: "+1 (555) 123-4567",
+        //     Email: "john.doe@example.com",
+        //     HireDate: "2020-01-10",
+        //     DepartmentId: 1,
+        //     Department: {
+        //       DepartmentID: 1
+        //     },
+        //     Position: {
+        //       PositionID: 1,
+        //     },
+        //     Status: "Active",
+        //   },
 
-          {
-            EmployeeID: 2,
-            FullName: "John Doe2",
-            DateOfBirth: "1985-05-15",
-            Gender: "Male",
-            PhoneNumber: "+1 (555) 123-4567",
-            Email: "john.doe@example.com",
-            HireDate: "2020-01-10",
-            DepartmentId: 1,
-            Department: {
-              DepartmentID: 1
-            },
-            Position: {
-              PositionID: 1,
-            },
-            Status: "Active",
-          },
-        ])
+        //   {
+        //     EmployeeID: 2,
+        //     FullName: "John Doe2",
+        //     DateOfBirth: "1985-05-15",
+        //     Gender: "Male",
+        //     PhoneNumber: "+1 (555) 123-4567",
+        //     Email: "john.doe@example.com",
+        //     HireDate: "2020-01-10",
+        //     DepartmentId: 1,
+        //     Department: {
+        //       DepartmentID: 1
+        //     },
+        //     Position: {
+        //       PositionID: 1,
+        //     },
+        //     Status: "Active",
+        //   },
+        // ])
       } finally {
         setIsLoading(false)
       }
@@ -283,6 +283,7 @@ export default function AccountsPage() {
     {
       accessorKey: "Id",
       header: "ID",
+      cell: ({ row }: { row: { index: number } }) => row.index + 1,
     },
     {
       accessorKey: "Username",
@@ -313,7 +314,7 @@ export default function AccountsPage() {
             </Button>
             <Button variant="ghost" size="icon" onClick={() => handleDeleteAccount(account.Id)}>
               <Trash2 className="h-4 w-4" />
-            </Button>
+            </Button> 
           </div>
         )
       },

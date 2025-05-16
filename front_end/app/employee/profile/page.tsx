@@ -43,22 +43,25 @@ export default function EmployeeProfile() {
     const fetchEmployeeData = async () => {
       try {
         // In a real app, you would get the current user's ID from the auth context
-        const employeeId = 1 // Mock employee ID
+        const employeeId = Number(localStorage.getItem("employeeID")) // Retrieve employee ID from localStorage or use a default value
+        console.log("employeeId: ", employeeId)
 
         const response = await employeeApi.getById(employeeId)
         if (!response.success || !response.data) {
           throw new Error(response.error || "Failed to fetch employee data")
         }
-
-        const employeeData = response.data
-        setEmployee(employeeData)
-
+        console.log("respon: ", response)
+        const employeeData = response.data.data
+        setEmployee(response.data.data)
+        console.log("employeeData: ", employeeData)
         // Update form values
-        form.reset({
-          fullName: employeeData.fullName,
-          phoneNumber: employeeData.phoneNumber,
-          email: employeeData.email,
-        })
+        if (employeeData) {
+          form.reset({
+            fullName: employeeData.FullName,
+            phoneNumber: employeeData.PhoneNumber,
+            email: employeeData.Email,
+          })
+        }
       } catch (error) {
         toast({
           variant: "destructive",
@@ -75,13 +78,13 @@ export default function EmployeeProfile() {
     setIsLoading(true)
 
     try {
-      // In a real app, you would get the current user's ID from the auth context
-      const employeeId = 1 // Mock employee ID
+      const employeeId = Number(localStorage.getItem("employeeID")) // Retrieve employee ID from localStorage or use a default value
+
 
       const response = await employeeApi.updateProfile(employeeId, {
-        fullName: values.fullName,
-        phoneNumber: values.phoneNumber,
-        email: values.email,
+        FullName: values.fullName,
+        PhoneNumber: values.phoneNumber,
+        Email: values.email,
       })
 
       if (!response.success) {
@@ -104,7 +107,7 @@ export default function EmployeeProfile() {
   }
 
   return (
-    <DashboardLayout role="employee" userName={employee?.fullName || "John Doe"}>
+    <DashboardLayout role="employee" userName={employee?.FullName || "John Doe"}>
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">My Profile</h1>
@@ -181,27 +184,27 @@ export default function EmployeeProfile() {
             <div className="grid gap-6 md:grid-cols-2">
               <div>
                 <h3 className="font-medium">Date of Birth</h3>
-                <p className="text-muted-foreground">{employee?.dateOfBirth || "15 May 1985"}</p>
+                <p className="text-muted-foreground">{employee?.DateOfBirth || "15 May 1985"}</p>
               </div>
               <div>
                 <h3 className="font-medium">Gender</h3>
-                <p className="text-muted-foreground">{employee?.gender || "Male"}</p>
+                <p className="text-muted-foreground">{employee?.Gender || "Male"}</p>
               </div>
               <div>
                 <h3 className="font-medium">Hire Date</h3>
-                <p className="text-muted-foreground">{employee?.hireDate || "10 Jan 2020"}</p>
+                <p className="text-muted-foreground">{employee?.HireDate || "10 Jan 2020"}</p>
               </div>
               <div>
                 <h3 className="font-medium">Department</h3>
-                <p className="text-muted-foreground">{employee?.department || "Engineering"}</p>
+                <p className="text-muted-foreground">{employee?.Department.DepartmentName || "Engineering"}</p>
               </div>
               <div>
                 <h3 className="font-medium">Position</h3>
-                <p className="text-muted-foreground">{employee?.position || "Software Developer"}</p>
+                <p className="text-muted-foreground">{employee?.Position.PositionName || "Software Developer"}</p>
               </div>
               <div>
                 <h3 className="font-medium">Status</h3>
-                <p className="text-muted-foreground">{employee?.status || "Active"}</p>
+                <p className="text-muted-foreground">{employee?.Status || "Active"}</p>
               </div>
             </div>
           </CardContent>

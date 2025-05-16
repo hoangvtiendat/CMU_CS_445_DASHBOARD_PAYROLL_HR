@@ -3,7 +3,7 @@ import { MySQLEmployee } from './employee.entity';
 @Entity({ name: 'attendance', schema: 'HUMAN_PAYROLL' })
 export class MySQLAttendance {
     @PrimaryGeneratedColumn()
-    public AttendaceID!: number; // INT AUTO_INCREMENT
+    public AttendanceID!: number; // INT AUTO_INCREMENT
 
     @ManyToOne(() => MySQLEmployee)
     @JoinColumn({ name: 'EmployeeID' })
@@ -22,5 +22,5 @@ export class MySQLAttendance {
     public AttendanceMonth!: Date;
 
     @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-    public CreateAt!: Date;
+    public CreatedAt!: Date;
 }
