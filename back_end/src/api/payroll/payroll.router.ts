@@ -1,16 +1,17 @@
 import passport from 'passport';
 import { Router } from 'express';
 import { PayrollController } from './payroll.controller';
+import authenticateJWT from '../../middleware/authencation'
 
 
 const payrollRouter = Router();
 
 
-payrollRouter.get('/dashboard/status', PayrollController.status)
-payrollRouter.get('/employee/:id', PayrollController.getByIdEmplpoyee)
-payrollRouter.get('/', PayrollController.getSalaryByMonth)
-payrollRouter.post('/', PayrollController.create)
-payrollRouter.put('/:id', PayrollController.update);
-payrollRouter.delete('/:id', PayrollController.delete)
+payrollRouter.get('/dashboard/status', authenticateJWT, PayrollController.status)
+payrollRouter.get('/employee/:id', authenticateJWT, PayrollController.getByIdEmplpoyee)
+payrollRouter.get('/', authenticateJWT, PayrollController.getSalaryByMonth)
+payrollRouter.post('/', authenticateJWT, PayrollController.create)
+payrollRouter.put('/:id', authenticateJWT, PayrollController.update);
+payrollRouter.delete('/:id', authenticateJWT, PayrollController.delete)
 
 export default payrollRouter;

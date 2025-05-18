@@ -5,6 +5,8 @@ import departmentRouter from './department/department.router';
 import positionRouter  from './position/position.router'
 import payrollRouter from './payroll/payroll.router';
 import attendanceRouter from './attendance/attendance.router';
+import alertRouter from './alert/alert.router';
+
 const router = express.Router();
 
 router.use('/auth', authRouter)
@@ -13,5 +15,7 @@ router.use('/departments', departmentRouter)
 router.use('/positions', positionRouter)
 router.use('/salaries', payrollRouter)
 router.use('/attendance', attendanceRouter)
+router.use('/alerts', alertRouter)
+
 
 export default router

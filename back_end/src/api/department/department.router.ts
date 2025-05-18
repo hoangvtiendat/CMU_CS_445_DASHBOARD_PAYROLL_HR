@@ -1,6 +1,7 @@
 import passport from 'passport';
 import { Router } from 'express';
 import { DepartmentController } from './department.controller';
+import authenticateJWT from '../../middleware/authencation'
 
 
 const departmentRouter = Router();
@@ -8,6 +9,6 @@ const departmentRouter = Router();
 
 
 departmentRouter.get('/', DepartmentController.getAll);
-departmentRouter.get('/count', DepartmentController.getCount);
+departmentRouter.get('/count', authenticateJWT, DepartmentController.getCount);
 
 export default departmentRouter;

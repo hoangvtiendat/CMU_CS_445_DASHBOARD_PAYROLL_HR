@@ -22,10 +22,15 @@ export default function AlertsPage() {
       try {
         // Fetch all alerts
         const alertsResponse = await alertApi.getAll()
+        console.log("alertsResponse", alertsResponse.data.data)
         if (!alertsResponse.success || !alertsResponse.data) {
           throw new Error(alertsResponse.error || "Failed to fetch alerts")
         }
-        // setAllAlerts(alertsResponse.data.data)
+        if (alertsResponse?.data?.data) {
+          setAllAlerts(alertsResponse.data.data);
+        } else {
+          setAllAlerts([]);
+        }
       } catch (error) {
         toast({
           variant: "destructive",
@@ -34,43 +39,43 @@ export default function AlertsPage() {
         })
 
         // Set mock data if API fails
-        setAllAlerts([
-          {
-            id: 1,
-            type: "Anniversary",
-            message: "Jane Smith's 5-year work anniversary is coming up next week.",
-            date: "2023-07-15",
-            priority: "medium",
-          },
-          {
-            id: 2,
-            type: "Leave",
-            message: "John Doe has taken more than 2 days of leave this month.",
-            date: "2023-07-10",
-            priority: "high",
-          },
-          {
-            id: 3,
-            type: "Leave",
-            message: "Sarah Johnson has requested 5 days of leave starting next Monday.",
-            date: "2023-07-08",
-            priority: "medium",
-          },
-          {
-            id: 4,
-            type: "Anniversary",
-            message: "Robert Johnson's 3-year work anniversary is on July 20th.",
-            date: "2023-07-20",
-            priority: "medium",
-          },
-          {
-            id: 5,
-            type: "Leave",
-            message: "Michael Wilson has been absent for 3 consecutive days without notice.",
-            date: "2023-07-05",
-            priority: "high",
-          },
-        ])
+        // setAllAlerts([
+        //   {
+        //     id: 1,
+        //     type: "Anniversary",
+        //     message: "Jane Smith's 5-year work anniversary is coming up next week.",
+        //     date: "2023-07-15",
+        //     priority: "medium",
+        //   },
+        //   {
+        //     id: 2,
+        //     type: "Leave",
+        //     message: "John Doe has taken more than 2 days of leave this month.",
+        //     date: "2023-07-10",
+        //     priority: "high",
+        //   },
+        //   {
+        //     id: 3,
+        //     type: "Leave",
+        //     message: "Sarah Johnson has requested 5 days of leave starting next Monday.",
+        //     date: "2023-07-08",
+        //     priority: "medium",
+        //   },
+        //   {
+        //     id: 4,
+        //     type: "Anniversary",
+        //     message: "Robert Johnson's 3-year work anniversary is on July 20th.",
+        //     date: "2023-07-20",
+        //     priority: "medium",
+        //   },
+        //   {
+        //     id: 5,
+        //     type: "Leave",
+        //     message: "Michael Wilson has been absent for 3 consecutive days without notice.",
+        //     date: "2023-07-05",
+        //     priority: "high",
+        //   },
+        // ])
       } finally {
         setIsLoading(false)
       }
@@ -121,7 +126,7 @@ export default function AlertsPage() {
                               {new Date(alert.date).toLocaleDateString()}
                             </span>
                           </div>
-                          <p className="mt-1 text-sm">{alert.message}</p>
+                          <p className="mt-1 text-sm" dangerouslySetInnerHTML={{ __html: alert.message }}></p>
                         </div>
                       </div>
                     ))
@@ -153,7 +158,7 @@ export default function AlertsPage() {
                               {new Date(alert.date).toLocaleDateString()}
                             </span>
                           </div>
-                          <p className="mt-1 text-sm">{alert.message}</p>
+                          <p className="mt-1 text-sm" dangerouslySetInnerHTML={{ __html: alert.message }}></p>
                         </div>
                       </div>
                     ))
@@ -188,7 +193,7 @@ export default function AlertsPage() {
                               {new Date(alert.date).toLocaleDateString()}
                             </span>
                           </div>
-                          <p className="mt-1 text-sm">{alert.message}</p>
+                          <p className="mt-1 text-sm" dangerouslySetInnerHTML={{ __html: alert.message }}></p>
                         </div>
                       </div>
                     ))

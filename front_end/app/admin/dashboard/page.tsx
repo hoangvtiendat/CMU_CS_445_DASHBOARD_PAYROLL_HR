@@ -10,6 +10,7 @@ import { dashboardApi, alertApi } from "@/lib/api"
 import type { EmployeeStats, PayrollStats, Alert } from "@/lib/api-types"
 import { useToast } from "@/components/ui/use-toast"
 import { useRouter } from "next/navigation"
+import { set } from "date-fns"
 
 
 const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff8042", "#a4de6c", "#d0ed57", "#8dd1e1"];
@@ -55,7 +56,12 @@ export default function AdminDashboard() {
         if (!alertsResponse.success || !alertsResponse.data) {
           throw new Error(alertsResponse.error || "Failed to fetch alerts")
         }
-        // setAlerts(alertsResponse.data.data)
+        if (alertsResponse?.data?.data) {
+          setAlerts(alertsResponse.data.data);
+        } else {
+          setAlerts([]);
+        }
+
       } catch (error) {
         toast({
           variant: "destructive",
@@ -338,7 +344,7 @@ export default function AdminDashboard() {
                           {new Date(alert.date).toLocaleDateString()}
                         </span>
                       </div>
-                      <p className="mt-1 text-sm">{alert.message}</p>
+                      <p className="mt-1 text-sm"dangerouslySetInnerHTML={{ __html: alert.message }}></p>
                     </div>
                   </div>
                 ))

@@ -9,6 +9,7 @@ export class MySQLAttendance {
     @JoinColumn({ name: 'EmployeeID' })
     public Employee!: MySQLEmployee;
 
+    
     @Column({ type: 'int'})
     public WorkDays!: number;
 
