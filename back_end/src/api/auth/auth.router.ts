@@ -1,7 +1,7 @@
 import passport from 'passport';
 import { Router } from 'express';
 import { AuthController } from '../auth/auth.controller';
-import authenticateJWT from '../../middleware/authencation'
+import authenticateJWT from '../../middleware/authentication'
 
 const authRouter = Router();
 

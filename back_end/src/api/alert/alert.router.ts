@@ -1,7 +1,7 @@
 import passport from 'passport';
 import { Router } from 'express';
 import { AlertController } from './alert.controller';
-import authenticateJWT from '../../middleware/authencation'
+import authenticateJWT from '../../middleware/authentication'
 
 
 const AlertRouter = Router();

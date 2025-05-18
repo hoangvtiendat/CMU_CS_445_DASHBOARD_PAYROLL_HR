@@ -24,13 +24,49 @@ export function Header({ userName, role }: HeaderProps) {
   const { toast } = useToast()
   const [notifications, setNotifications] = useState(3)
 
-  const handleLogout = () => {
-    // In a real app, you would call an API to logout
-    toast({
-      title: "Logged out",
-      description: "You have been successfully logged out.",
-    })
-    router.push("/")
+  const handleLogout = async () => {
+    try {
+      // Make a POST request to your logout API endpoint using fetch
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // You might need to include authorization headers if your logout API requires it
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+        // You might need to send a body depending on your backend implementation
+        // body: JSON.stringify({}),
+      });
+
+      if (response.ok) {
+        // Clear any stored tokens (localStorage, cookies, etc.)
+        localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken'); // If you are using refresh tokens
+
+        toast({
+          title: "Logged out",
+          description: "You have been successfully logged out.",
+        });
+
+        // Redirect the user to the login page
+        router.push("/login"); // Adjust the route as needed
+      } else {
+        const errorData = await response.json();
+        toast({
+          title: "Logout failed",
+          description: errorData?.message || "An error occurred during logout.",
+          variant: "destructive",
+        });
+        console.error("Logout failed:", response.status, errorData);
+      }
+    } catch (error: any) {
+      toast({
+        title: "Logout failed",
+        description: "Network error or failed to connect to the server.",
+        variant: "destructive",
+      });
+      console.error("Logout error:", error);
+    }
   }
 
   return (
@@ -68,4 +104,3 @@ export function Header({ userName, role }: HeaderProps) {
     </header>
   )
 }
-

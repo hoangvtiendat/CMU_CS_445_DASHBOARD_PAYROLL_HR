@@ -22,7 +22,6 @@ export default function AlertsPage() {
       try {
         // Fetch all alerts
         const alertsResponse = await alertApi.getAll()
-        console.log("alertsResponse", alertsResponse.data.data)
         if (!alertsResponse.success || !alertsResponse.data) {
           throw new Error(alertsResponse.error || "Failed to fetch alerts")
         }
@@ -209,4 +208,3 @@ export default function AlertsPage() {
     </DashboardLayout>
   )
 }
-

@@ -1,10 +1,12 @@
-import jwt from 'jsonwebtoken';
+import jwt, { Secret, SignOptions } from 'jsonwebtoken';
+import ms from 'ms'; // Import để có kiểu ms.StringValue (nếu cần)
 
-const JWT_SECRET = process.env.JWT_SECRET || 'default';
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1h'; // Default expiration time set to 1 hour
+const JWT_SECRET: Secret = process.env.JWT_SECRET || 'default';
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1h';
 
 export const generateJwt = (payload: any) => {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: parseInt(JWT_EXPIRES_IN, 10) || '1h' });
+  const options: SignOptions = { expiresIn: JWT_EXPIRES_IN as ms.StringValue };
+  return jwt.sign(payload, JWT_SECRET, options);
 };
 
 export const verifyJwt = (token: string): any => {
