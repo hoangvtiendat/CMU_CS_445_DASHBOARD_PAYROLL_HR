@@ -33,18 +33,20 @@ export const departmentRepository = {
 
     async getCount(): Promise<number | null> {
         const mssqlDepartment = await mssqlRepository.findAndCount();
-        const mysqlDepartment = await mysqlRepository.findAndCount();
+        // const mysqlDepartment = await mysqlRepository.findAndCount();
 
-        if (!mssqlDepartment || !mysqlDepartment) {
-            return null;
-        }
-        const nameSet = new Set<string>();
-        for (const dept of [...mysqlDepartment[0], ...mssqlDepartment[0]]) {
-            const normalizedName = dept.DepartmentName.trim().toLowerCase();
-            nameSet.add(normalizedName);
-        }
+        // if (!mssqlDepartment || !mysqlDepartment) {
+        //     return null;
+        // }
+        // const nameSet = new Set<string>();
+        // for (const dept of [...mysqlDepartment[0], ...mssqlDepartment[0]]) {
+        //     const normalizedName = dept.DepartmentName.trim().toLowerCase();
+        //     nameSet.add(normalizedName);
+        // }
 
-        return nameSet.size;
+        // return nameSet.size;
+        console.log(mssqlDepartment[1]);
+        return Number(mssqlDepartment[1]);
     },
    
 

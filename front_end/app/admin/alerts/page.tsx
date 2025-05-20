@@ -9,6 +9,7 @@ import { BellRing, Calendar, AlertTriangle } from "lucide-react"
 import { alertApi } from "@/lib/api"
 import type { Alert } from "@/lib/api-types"
 import { useToast } from "@/components/ui/use-toast"
+import { Button } from "@/components/ui/button"
 
 export default function AlertsPage() {
   const { toast } = useToast()
@@ -22,6 +23,7 @@ export default function AlertsPage() {
       try {
         // Fetch all alerts
         const alertsResponse = await alertApi.getAll()
+        console.log("Alerts Response:", alertsResponse)
         if (!alertsResponse.success || !alertsResponse.data) {
           throw new Error(alertsResponse.error || "Failed to fetch alerts")
         }
@@ -87,6 +89,41 @@ export default function AlertsPage() {
   const anniversaryAlerts = allAlerts.filter((alert) => alert.type === "Anniversary")
   const leaveAlerts = allAlerts.filter((alert) => alert.type === "Leave")
 
+  // Hàm gửi mail
+  const handleSendMail = async (alert: Alert) => {
+    try {
+      // Giả sử alert.email là email nhân viên, nếu không có thì lấy từ alert.employee.email hoặc alert.employeeEmail
+      const id = Number(alert.employeeID)
+      const data = alert.message
+      if (!id) {
+        toast({
+          variant: "destructive",
+          title: "No email",
+          description: "No employee email found for this alert.",
+        })
+        return
+      }
+      const response = await alertApi.sendMail(
+        Number(id),
+        data,
+      )
+      console.log("Send Mail Response:", response)
+      if (!response.success) {
+        throw new Error(response.error || "Failed to send mail")
+      }
+      toast({
+        title: "Mail sent",
+        description: `Mail sent to successfully.`,
+      })
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to send mail.",
+      })
+    }
+  }
+
   return (
     <DashboardLayout role="admin" userName="Admin">
       <div className="space-y-6">
@@ -127,6 +164,9 @@ export default function AlertsPage() {
                           </div>
                           <p className="mt-1 text-sm" dangerouslySetInnerHTML={{ __html: alert.message }}></p>
                         </div>
+                        <Button size="sm" onClick={() => handleSendMail(alert)}>
+                          Send Mail
+                        </Button>
                       </div>
                     ))
                   ) : (
@@ -159,6 +199,9 @@ export default function AlertsPage() {
                           </div>
                           <p className="mt-1 text-sm" dangerouslySetInnerHTML={{ __html: alert.message }}></p>
                         </div>
+                        <Button size="sm" onClick={() => handleSendMail(alert)}>
+                          Send Mail
+                        </Button>
                       </div>
                     ))
                   ) : (
@@ -194,6 +237,9 @@ export default function AlertsPage() {
                           </div>
                           <p className="mt-1 text-sm" dangerouslySetInnerHTML={{ __html: alert.message }}></p>
                         </div>
+                        <Button size="sm" onClick={() => handleSendMail(alert)}>
+                          Send Mail
+                        </Button>
                       </div>
                     ))
                   ) : (

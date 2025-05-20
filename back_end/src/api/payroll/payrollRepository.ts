@@ -84,7 +84,6 @@ export const salaryRepository = {
     },
 
     async getSalaryByMonth(month: number, year: number): Promise<SalaryWithEmployee[] | null> {
-        console.log("month: ", month, "year: ", year)
         const salaries = await mysqlRepository
             .createQueryBuilder('salary')
             .innerJoin('employees', 'employee', 'salary.EmployeeID = employee.EmployeeID')
@@ -104,8 +103,6 @@ export const salaryRepository = {
             .where('MONTH(salary.SalaryMonth) = :month', { month })
             .andWhere('YEAR(salary.SalaryMonth) = :year', { year })
             .getRawMany<SalaryWithEmployee>(); // Sử dụng generic để chỉ định kiểu trả về
-
-        console.log("salaries: ", salaries)
 
         return salaries.length > 0 ? salaries : null;
     },

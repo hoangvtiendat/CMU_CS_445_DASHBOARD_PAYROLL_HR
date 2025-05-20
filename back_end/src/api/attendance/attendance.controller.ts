@@ -20,4 +20,17 @@ export const AttendanceController = {
             });
         }
     },
+
+    async getAll(req: Request, res: Response) {
+        try {
+            const serviceResponse = await AttendanceService.getAll();
+            handleServiceResponse(serviceResponse, res);
+        } catch (error) {
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+                status: 'Failed',
+                message: 'Error get all attendance',
+                error: (error as Error).message,
+            });
+        }
+    },  
 };

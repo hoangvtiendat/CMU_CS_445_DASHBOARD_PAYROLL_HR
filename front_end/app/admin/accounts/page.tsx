@@ -40,6 +40,7 @@ export default function AccountsPage() {
   const [confirmPassword, setConfirmPassword] = useState("")
   const [isEditing, setIsEditing] = useState(false)
   const [editingAccountId, setEditingAccountId] = useState<number | null>(null)
+  const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -47,7 +48,6 @@ export default function AccountsPage() {
       try {
         // Fetch accounts
         const accountsResponse = await accountApi.getAll()
-        console.log("accountsResponse: ", accountsResponse)
         if (!accountsResponse.success || !accountsResponse.data) {
           throw new Error(accountsResponse.error || "Failed to fetch accounts")
         }
@@ -183,10 +183,50 @@ export default function AccountsPage() {
     }
   }
 
+  // Validate username & password
+  const validateAccount = () => {
+    console.log("Validating account:", newAccount)
+    if (!newAccount.Username || newAccount.Username.length < 5) {
+      toast({
+        variant: "destructive",
+        title: "Validation Error",
+        description: "Username must be at least 6 characters.",
+      })
+      return false
+    }
+    if (!newAccount.Password || newAccount.Password.length <= 6) {
+      toast({
+        variant: "destructive",
+        title: "Validation Error",
+        description: "Password must be at least 6 characters.",
+      })
+      return false
+    }
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(newAccount.Password || "")) {
+      toast({
+        variant: "destructive",
+        title: "Validation Error",
+        description: "Password must contain at least one special character.",
+      })
+      return false
+    }
+
+    if (newAccount.Password !== confirmPassword) {
+      toast({
+        variant: "destructive",
+        title: "Password Error",
+        description: "Passwords do not match.",
+      })
+      return false
+    }
+
+    return true
+  }
+
   const handleAddAccount = async () => {
     try {
       // Validate required fields
-      if (!newAccount.Username || !newAccount.Email || !newAccount.Employee || !newAccount.Role) {
+      if (!newAccount.Username || !newAccount.Employee || !newAccount.Role) {
         toast({
           variant: "destructive",
           title: "Validation Error",
@@ -194,6 +234,9 @@ export default function AccountsPage() {
         })
         return
       }
+
+      // Validate username & password
+      if (!validateAccount()) return
 
       // Validate password confirmation for new accounts
       if (!isEditing && newAccount.Password !== confirmPassword) {
@@ -222,7 +265,6 @@ export default function AccountsPage() {
         }
 
         const response = await accountApi.update(accountData)
-        console.log("response: ", response);
         if (!response.success) {
           throw new Error(response.error || "Failed to update account")
         }
@@ -242,7 +284,7 @@ export default function AccountsPage() {
         }
 
         const response = await accountApi.create(accountData)
-
+        console.log("New account created:", newAccount)
         if (!response.success) {
           throw new Error(response.error || "Failed to create account")
         }
@@ -278,6 +320,34 @@ export default function AccountsPage() {
     }
   }
 
+  // Xác nhận xoá account
+  const handleDeleteAccount = async (id: number) => {
+    setDeleteConfirmId(id)
+  }
+
+  const confirmDeleteAccount = async () => {
+    if (deleteConfirmId === null) return
+    try {
+      const response = await accountApi.delete(deleteConfirmId)
+      if (!response.success) {
+        throw new Error(response.error || "Failed to delete account")
+      }
+      setAccounts(accounts.filter((account) => account.Id !== deleteConfirmId))
+      toast({
+        title: "Account deleted",
+        description: "Account has been deleted successfully.",
+      })
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to delete account. Please try again.",
+      })
+    } finally {
+      setDeleteConfirmId(null)
+    }
+  }
+
   // Column definitions for the accounts table
   const columns = [
     {
@@ -289,15 +359,15 @@ export default function AccountsPage() {
       accessorKey: "Username",
       header: "Username",
     },
-    {
-      accessorKey: "Email",
-      header: "Email",
-    },
+    // {
+    //   accessorKey: "Email",
+    //   header: "Email",
+    // },
 
     {
       accessorKey: "FullName",
       header: "Employee",
-      
+
     },
     {
       accessorKey: "Role",
@@ -314,7 +384,7 @@ export default function AccountsPage() {
             </Button>
             <Button variant="ghost" size="icon" onClick={() => handleDeleteAccount(account.Id)}>
               <Trash2 className="h-4 w-4" />
-            </Button> 
+            </Button>
           </div>
         )
       },
@@ -324,7 +394,6 @@ export default function AccountsPage() {
   const handleEditAccount = (id: number) => {
     // Find the account to edit
     const accountToEdit = accounts.find((account) => account.Id === id)
-    console.log("acc to edit: ", accountToEdit);
     if (!accountToEdit) return
 
     // Set the form values
@@ -340,30 +409,6 @@ export default function AccountsPage() {
     setIsEditing(true)
     setEditingAccountId(id)
     setIsAddDialogOpen(true)
-  }
-
-  const handleDeleteAccount = async (id: number) => {
-    try {
-      const response = await accountApi.delete(id)
-
-      if (!response.success) {
-        throw new Error(response.error || "Failed to delete account")
-      }
-
-      // Remove the deleted account from the list
-      setAccounts(accounts.filter((account) => account.Id !== id))
-
-      toast({
-        title: "Account deleted",
-        description: "Account has been deleted successfully.",
-      })
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to delete account. Please try again.",
-      })
-    }
   }
 
   return (
@@ -437,10 +482,10 @@ export default function AccountsPage() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="space-y-2">
+                  {/* <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
                     <Input id="Email" name="Email" type="email" value={newAccount.Email} onChange={handleInputChange} />
-                  </div>
+                  </div> */}
                   <div className="space-y-2">
                     <Label htmlFor="role">Role</Label>
                     <Select value={newAccount.Role} onValueChange={(value) => handleSelectChange("Role", value)}>
@@ -501,6 +546,23 @@ export default function AccountsPage() {
             />
           </CardContent>
         </Card>
+        {/* Dialog xác nhận xoá */}
+        <Dialog open={deleteConfirmId !== null} onOpenChange={open => !open && setDeleteConfirmId(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Confirm Delete</DialogTitle>
+            </DialogHeader>
+            <div>Do you sure delete this account?</div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setDeleteConfirmId(null)}>
+                Cancel
+              </Button>
+              <Button variant="destructive" onClick={confirmDeleteAccount}>
+                Delete
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </DashboardLayout>
   )

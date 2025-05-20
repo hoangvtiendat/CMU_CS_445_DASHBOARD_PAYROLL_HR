@@ -46,7 +46,6 @@ export const EmployeeController = {
     async information(req: Request, res: Response) {
         try {
             const id = Number(req.params.id);
-            console.log("id: ", id);
             const serviceResponse = await EmployeeService.information(id);
             handleServiceResponse(serviceResponse, res);
         } catch (error) {
@@ -59,7 +58,6 @@ export const EmployeeController = {
     },
 
     async status(req: Request, res: Response) {
-        console.log("status");
         try {
             const serviceResponse = await EmployeeService.status();
             handleServiceResponse(serviceResponse, res);

@@ -35,8 +35,6 @@ export default function PayrollDashboard() {
         if (!statsResponse.success || !statsResponse.data.data) {
           throw new Error(statsResponse.error || "Failed to fetch number of employees")
         }
-        console.log("statsResponse: ", statsResponse)
-
       } catch (error) {
         toast({
           variant: "destructive",

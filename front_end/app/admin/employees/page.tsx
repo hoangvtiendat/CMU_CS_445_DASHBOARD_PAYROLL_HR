@@ -30,9 +30,7 @@ export default function EmployeesPage() {
   const [departments, setDepartments] = useState<Department[]>([])
   const [positions, setPositions] = useState<Position[]>([])
   const [isLoading, setIsLoading] = useState(true)
-
-
-
+  const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null)
 
   const [newEmployee, setNewEmployee] = useState<Partial<CreateEmployeeRequest>>({
     FullName: "",
@@ -47,11 +45,19 @@ export default function EmployeesPage() {
     Position: {
       PositionID: 1
     },
-    Status: "FULL TIME",
+    Status: "Active",
   })
 
   const [isEditing, setIsEditing] = useState(false)
   const [editingEmployeeId, setEditingEmployeeId] = useState<number | null>(null)
+
+  const phoneRegex = /^0\d{9}$/; // chỉ số, bắt đầu bằng 0
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  const isFutureDate = (dateStr: string | undefined) => {
+    if (!dateStr) return false;
+    return new Date(dateStr) > new Date();
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -145,6 +151,7 @@ export default function EmployeesPage() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setNewEmployee((prev) => ({ ...prev, [name]: value }))
+
   }
 
   const handleSelectChange = (name: string, value: string) => {
@@ -171,19 +178,52 @@ export default function EmployeesPage() {
 
   const handleAddEmployee = async () => {
     try {
-      console.log(1)
       // Validate required fields
-      if (!newEmployee.FullName || !newEmployee.Department?.DepartmentID || !newEmployee.Position?.PositionID) {
-        console.log(2)
+      if (!newEmployee.FullName || !newEmployee.Department?.DepartmentID || !newEmployee.Position?.PositionID || !newEmployee.Gender) {
         toast({
           variant: "destructive",
           title: "Validation Error",
           description: "Please fill in all required fields.",
         })
-        console.log(3)
         return
       }
 
+      if (!phoneRegex.test(newEmployee.PhoneNumber ?? "")) {
+        toast({
+          variant: "destructive",
+          title: "Validation Error",
+          description:
+            "Phone numbers can only be entered in numbers and must start with 0 (no spaces).",
+        });
+        return;
+      }
+
+      if (!emailRegex.test(newEmployee.Email ?? "")) {
+        toast({
+          variant: "destructive",
+          title: "Validation Error",
+          description: "Please enter a valid email",
+        });
+        return;
+      }
+
+      if (isFutureDate(newEmployee.DateOfBirth)) {
+        toast({
+          variant: "destructive",
+          title: "Validation Error",
+          description: "Please enter a valid date of birth",
+        });
+        return;
+      }
+
+      if (isFutureDate(newEmployee.HireDate)) {
+        toast({
+          variant: "destructive",
+          title: "Validation Error",
+          description: "Please enter a valid hire date",
+        });
+        return;
+      }
       // Convert departmentId and positionId to numbers
       const employeeData =
       {
@@ -191,7 +231,6 @@ export default function EmployeesPage() {
         DepartmentID: Number(newEmployee.Department?.DepartmentID),
         PositionID: Number(newEmployee.Position.PositionID),
       }
-      console.log("empl data: ", employeeData)
       let response: { success: boolean; data?: Employee; error?: string }
 
       if (isEditing && editingEmployeeId) {
@@ -238,20 +277,14 @@ export default function EmployeesPage() {
       } else {
         // Create new employee
         const apiResponse = await employeeApi.create(employeeData)
-        console.log("apiRes: ", apiResponse)
         response = {
           success: apiResponse.success,
           data: apiResponse.data?.data || undefined,
           error: apiResponse.error,
         }
-
-        console.log("res: ", response)
-
         if (!response.success) {
           throw new Error(response.error || "Failed to add employee")
         }
-
-        console.log("employee: ", employees)
         const department = departments.find(
           (dep) => dep.DepartmentID === response.data?.Department.DepartmentID
         );
@@ -261,7 +294,7 @@ export default function EmployeesPage() {
         );
 
         // Add the new employee to the list
-        setEmployees([...employees, { ...response.data!, Department: department || { DepartmentID: 0 }, Position: position || { PositionID: 0 } }])
+        setEmployees([...employees, { ...response.data!, Department: department || { DepartmentID: 0, DepartmentName: "" }, Position: position || { PositionID: 0, PositionName: "" } }])
 
 
 
@@ -292,7 +325,7 @@ export default function EmployeesPage() {
           PositionID: 1,
 
         },
-        Status: "FULL TIME",
+        Status: "Active",
       })
     } catch (error) {
       toast({
@@ -350,7 +383,7 @@ export default function EmployeesPage() {
         return (
           <div className="flex items-center">
             <span
-              className={`mr-2 h-2 w-2 rounded-full ${status === "FULL TIME" ? "bg-green-500" : status === "PART TIME" ? "bg-yellow-500" : "bg-red-500"
+              className={`mr-2 h-2 w-2 rounded-full ${status === "Active" ? "bg-green-500" : status === "Pending" ? "bg-yellow-500" : "bg-red-500"
                 }`}
             />
             {status}
@@ -412,18 +445,18 @@ export default function EmployeesPage() {
     setIsAddDialogOpen(true)
   }
 
-  const handleDeleteEmployee = async (id: number) => {
+  const handleDeleteEmployee = (id: number) => {
+    setDeleteConfirmId(id)
+  }
+
+  const confirmDeleteEmployee = async () => {
+    if (deleteConfirmId === null) return
     try {
-      console.log("id: ", id)
-      const response = await employeeApi.delete(id)
-      console.log("res: ", response)
+      const response = await employeeApi.delete(deleteConfirmId)
       if (!response.success) {
         throw new Error(response.error || "Failed to delete employee")
       }
-
-      // Remove the deleted employee from the list
-      setEmployees(employees.filter((employee) => employee.EmployeeID !== id))
-
+      setEmployees(employees.filter((employee) => employee.EmployeeID !== deleteConfirmId))
       toast({
         title: "Employee deleted",
         description: "Employee has been deleted successfully.",
@@ -434,6 +467,8 @@ export default function EmployeesPage() {
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to delete employee. Please try again.",
       })
+    } finally {
+      setDeleteConfirmId(null)
     }
   }
 
@@ -466,7 +501,7 @@ export default function EmployeesPage() {
                   Position: {
                     PositionID: 0,
                   },
-                  Status: "FULL TIME",
+                  Status: "Active",
                 })
               }
             }}
@@ -585,8 +620,9 @@ export default function EmployeesPage() {
                         <SelectValue placeholder="Select status" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="FULL TIME">FULL TIME</SelectItem>
-                        <SelectItem value="PART TIME">PART TIME</SelectItem>
+                        <SelectItem value="Active">ACTIVE</SelectItem>
+                        <SelectItem value="Pending">PENDING</SelectItem>
+                        <SelectItem value="Locked">LOCKED</SelectItem>
                         {/* <SelectItem value="Probation">Probation</SelectItem> */}
                       </SelectContent>
                     </Select>
@@ -616,6 +652,22 @@ export default function EmployeesPage() {
             />
           </CardContent>
         </Card>
+        <Dialog open={deleteConfirmId !== null} onOpenChange={open => !open && setDeleteConfirmId(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Confirm Delete</DialogTitle>
+            </DialogHeader>
+            <div>Do you sure delete this employee?</div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setDeleteConfirmId(null)}>
+                Cancel
+              </Button>
+              <Button variant="destructive" onClick={confirmDeleteEmployee}>
+                Delete
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </DashboardLayout>
   )

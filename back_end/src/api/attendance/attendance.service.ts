@@ -32,6 +32,26 @@ export const AttendanceService = {
                 StatusCodes.INTERNAL_SERVER_ERROR
             );
         }
+    },
+
+    getAll: async (): Promise<ServiceResponse<MySQLAttendance[] | null>> => {
+        try {
+            const attendance = await AttendanceRepository.getAll();
+            return new ServiceResponse<MySQLAttendance[]>(
+                ResponseStatus.Success,
+                'Get all attendance success',
+                attendance,
+                StatusCodes.OK
+            );
+        } catch (error) {
+            const errorMessage = `Error get all attendance: ${(error as Error).message}`;
+            return new ServiceResponse(
+                ResponseStatus.Failed,
+                errorMessage,
+                null,
+                StatusCodes.INTERNAL_SERVER_ERROR
+            );
+        }
     }
 }
 

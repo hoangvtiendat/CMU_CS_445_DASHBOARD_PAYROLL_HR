@@ -10,8 +10,8 @@ export class MySQLAccount {
   @Column({ type: 'varchar', length: 255, unique: true })
   public Username!: string; // VARCHAR(255) UNIQUE NOT NULL
 
-  @Column({ type: 'varchar', length: 255, unique: true })
-  public Email!: string; // VARCHAR(255) UNIQUE NOT NULL
+  // @Column({ type: 'varchar', length: 255, unique: true })
+  // public Email!: string; // VARCHAR(255) UNIQUE NOT NULL
 
   // @Column({ type: 'varchar', length: 255 })
   // public FullName!: string; // VARCHAR(255) UNIQUE NOT NULL

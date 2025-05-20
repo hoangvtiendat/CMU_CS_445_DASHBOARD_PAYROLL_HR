@@ -13,19 +13,14 @@ import { calculateUnixTime } from '../services/caculateDatetime';
 // import mailService from '../../services/sendEmail';
 import { verify } from 'crypto';
 import { MySQLAccount } from '../../model/mysql/account.entity'
+import mailService from '../services/sendMail.service';
 
-
-
-
-// import cacheService from '../../services/cache/cache.service';
-import { handleServiceResponse } from '../services/httpHandlerResponse';
 
 export const authService = {
 
-    login: async (loginData: Login): Promise<ServiceResponse<MySQLAccount| null>> => {
+    login: async (loginData: Login): Promise<ServiceResponse<MySQLAccount | null>> => {
         try {
             const user = await userRepository.findByUsername(loginData.username);
-            console.log("userrr: ", user)
             if (!user) {
                 return new ServiceResponse(
                     ResponseStatus.Failed,
@@ -76,7 +71,7 @@ export const authService = {
             );
         }
     },
-    
+
     register: async (userData: MySQLAccount): Promise<ServiceResponse<MySQLAccount | null>> => {
         try {
             const username = await userRepository.findByUsername(userData.Username);
@@ -91,6 +86,8 @@ export const authService = {
             if (!newUser) {
                 throw new Error("Error create user")
             }
+
+
             return new ServiceResponse<MySQLAccount>(
                 ResponseStatus.Success,
                 'User registered successfully!',
@@ -110,15 +107,10 @@ export const authService = {
 
     getAll: async (): Promise<ServiceResponse<(MySQLAccount & { FullName: string })[]>> => {
         try {
-            console.log(1);
             const allAccount = await userRepository.getAll();
-            console.log(2);
-
             if (!allAccount) {
                 throw new Error("empty");
             }
-            // console.log("all acc: ", allAccount)
-
             return new ServiceResponse<(MySQLAccount & { FullName: string })[]>(
                 ResponseStatus.Success,
                 'Users retrieved successfully!',
@@ -202,32 +194,28 @@ export const authService = {
         }
     },
 
-    logout: async (token: string): Promise<ServiceResponse<string | null>> => {
+    logout: async (id: number): Promise<ServiceResponse<string | null>> => {
         try {
-            let decoded;
-            try {
-                decoded = verifyJwt(token);
-            } catch (err: any) {
-                if (err.name === 'TokenExpiredError') {
-                    // Nếu token hết hạn, vẫn cố gắng lấy userId từ token (nếu có thể)
-                    decoded = (verifyJwt(token) as any);
-                } else {
-                    throw err;
-                }
+            const accountID = await userRepository.findByEmployeeIdAsync(id);
+            if (!accountID) {
+                throw new Error("No user found for this account");
             }
-            if (!decoded) { 
-                throw new Error('Invalid token');
+            const account = await userRepository.findByIdAsync(Number(accountID.account_Id));
+            if (!account) {
+                throw new Error("Account not found");
             }
-            const userId = decoded.userId;
-            const user = await userRepository.findByIdAsync(userId);
-            if (!user) {
-                throw new Error('User not found');
+            const accountUpdated = await userRepository.updateAsync(accountID.account_Id, {
+                ...account,
+                Access_token: null,
+                Reset_token: null,
+            });
+            if (!accountUpdated) {
+                throw new Error("Error Update");
             }
-            await userRepository.updateAsync(userId, { ...user, Reset_token: null, Access_token: null });
-            return new ServiceResponse(
+            return new ServiceResponse<string>(
                 ResponseStatus.Success,
                 'Logout successful',
-                null,
+                "Logout successful",
                 StatusCodes.OK
             );
         } catch (error) {
@@ -236,10 +224,51 @@ export const authService = {
                 ResponseStatus.Failed,
                 errorMessage,
                 null,
-                StatusCodes.INTERNAL_SERVER_ERROR
+                StatusCodes.UNAUTHORIZED
             );
         }
-    }
+    },
+    // verifyEmail: async (email: string): Promise<boolean> => {
+    //     try {
+    //         const user = await userRepository.findByEmailAsync(email);
+    //         if (!user) {
+    //             return false;
+    //         }
+
+    //         const verifyEmailToken = generateJwt({ email });
+    //         console.log("verifyEmailToken generated");
+    //         //       console.log("EMAIL_USER:", process.env.EMAIL_USER);
+    //         // console.log("EMAIL_PASS:", process.env.EMAIL_PASS);
+
+    //         const verifyUrl = `http://localhost:3000/auth/activate?token=${verifyEmailToken}`;
+    //         console.log("verifyUrl generated, start send email");
+    //         const mailIsSent = await mailService.sendEmail({
+    //             emailFrom: process.env.EMAIL_USER as string,
+    //             emailTo: email,
+    //             emailSubject: "Verify email",
+    //             emailText: `Click on the button below to verify your email: <a href="${verifyUrl}">Verify</a>`,
+    //         });
+
+    //         console.log("mailIsSent", mailIsSent);
+
+    //         if (!mailIsSent) {
+    //             return false;
+    //         }
+
+    //         // return new ServiceResponse<string>(
+    //         //   ResponseStatus.Success,
+    //         //   "Email activated successfully",
+    //         //   email,
+    //         //   StatusCodes.OK
+    //         // );
+    //         return true;
+    //     } catch (ex) {
+    //         const error = ex as Error;
+    //         console.error("Email send error:", error.message);
+    //         return false;
+    //     }
+    // },
+
 }
 
 

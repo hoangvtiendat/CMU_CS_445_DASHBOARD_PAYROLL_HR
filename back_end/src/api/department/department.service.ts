@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 
 // import { Users } from '../../model/users.entity';
 import { departmentRepository } from './departmentRepository';
+import {employeeRepository} from '../employee/employeeRepository';
 import {
     ServiceResponse,
     ResponseStatus,
@@ -40,7 +41,7 @@ export const DepartmentService = {
     },
     getCount: async (): Promise<ServiceResponse<number | 0>> => {
         try {
-            const count = await departmentRepository.getCount();
+            const count = await employeeRepository.getCountDepartment();
             if (!count) {
                 return new ServiceResponse<number>(
                     ResponseStatus.Success,

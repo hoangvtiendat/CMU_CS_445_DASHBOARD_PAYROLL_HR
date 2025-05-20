@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useToast } from "@/components/ui/use-toast"
+import { authApi } from "@/lib/api"
 
 interface HeaderProps {
   userName: string
@@ -27,21 +28,12 @@ export function Header({ userName, role }: HeaderProps) {
   const handleLogout = async () => {
     try {
       // Make a POST request to your logout API endpoint using fetch
-      const response = await fetch('/api/auth/logout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          // You might need to include authorization headers if your logout API requires it
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-        // You might need to send a body depending on your backend implementation
-        // body: JSON.stringify({}),
-      });
-
-      if (response.ok) {
+      const id  = Number(localStorage.getItem('employeeID'));
+      const response = await authApi.logout(id);
+      if (response.success) {
         // Clear any stored tokens (localStorage, cookies, etc.)
         localStorage.removeItem('token');
-        localStorage.removeItem('refreshToken'); // If you are using refresh tokens
+        localStorage.removeItem('employeeID');
 
         toast({
           title: "Logged out",
@@ -49,15 +41,17 @@ export function Header({ userName, role }: HeaderProps) {
         });
 
         // Redirect the user to the login page
-        router.push("/login"); // Adjust the route as needed
-      } else {
-        const errorData = await response.json();
+        router.push("/"); // Adjust the route as needed
+      } else if (response.data.status === "error") {
+        localStorage.removeItem('token');
+        localStorage.removeItem('employeeID');
+        router.push("/");
+
         toast({
           title: "Logout failed",
-          description: errorData?.message || "An error occurred during logout.",
+          description: "An error occurred during logout.",
           variant: "destructive",
         });
-        console.error("Logout failed:", response.status, errorData);
       }
     } catch (error: any) {
       toast({
@@ -65,21 +59,20 @@ export function Header({ userName, role }: HeaderProps) {
         description: "Network error or failed to connect to the server.",
         variant: "destructive",
       });
-      console.error("Logout error:", error);
     }
   }
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-white px-6 shadow-sm">
       <div className="ml-auto flex items-center gap-4">
-        <Button variant="outline" size="icon" className="relative">
+        {/* <Button variant="outline" size="icon" className="relative">
           <Bell className="h-5 w-5 text-business-gray" />
           {notifications > 0 && (
             <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-business-danger text-xs text-white">
               {notifications}
             </span>
           )}
-        </Button>
+        </Button> */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm" className="gap-2 border-business-primary/20">
@@ -90,10 +83,10 @@ export function Header({ userName, role }: HeaderProps) {
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            {/* <DropdownMenuItem>
               <User className="mr-2 h-4 w-4 text-business-primary" />
               Profile
-            </DropdownMenuItem>
+            </DropdownMenuItem> */}
             <DropdownMenuItem onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4 text-business-danger" />
               Logout

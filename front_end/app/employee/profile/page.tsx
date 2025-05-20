@@ -17,12 +17,14 @@ const formSchema = z.object({
   fullName: z.string().min(2, {
     message: "Full name must be at least 2 characters.",
   }),
-  phoneNumber: z.string().min(10, {
-    message: "Phone number must be at least 10 characters.",
-  }),
-  email: z.string().email({
-    message: "Please enter a valid email address.",
-  }),
+  phoneNumber: z
+    .string()
+    .min(10, { message: "Phone number must be at least 10 digits." })
+    .max(15, { message: "Phone number must be at most 15 digits." })
+    .regex(/^[0-9+]{10,15}$/, { message: "Phone number must contain only numbers or start with +" }),
+  email: z
+    .string()
+    .email({ message: "Please enter a valid email address." }),
 })
 
 export default function EmployeeProfile() {
@@ -44,16 +46,13 @@ export default function EmployeeProfile() {
       try {
         // In a real app, you would get the current user's ID from the auth context
         const employeeId = Number(localStorage.getItem("employeeID")) // Retrieve employee ID from localStorage or use a default value
-        console.log("employeeId: ", employeeId)
 
         const response = await employeeApi.getById(employeeId)
         if (!response.success || !response.data) {
           throw new Error(response.error || "Failed to fetch employee data")
         }
-        console.log("respon: ", response)
         const employeeData = response.data.data
         setEmployee(response.data.data)
-        console.log("employeeData: ", employeeData)
         // Update form values
         if (employeeData) {
           form.reset({

@@ -42,12 +42,9 @@ export function LoginForm() {
         username: values.username,
         password: values.password,
       })
-      console.log("respon: ", response)
-
       if (!response.success || !response.data) {
         throw new Error(response.error || "Login failed")
       }
-      console.log(1)
       // Store token in localStorage
       if (response.data.data) {
         localStorage.setItem("token", response.data.data.token)
@@ -55,11 +52,8 @@ export function LoginForm() {
         
 
       }
-
-      console.log("respon: ", response)
       // Redirect based on role
       const role = response.data.data?.Role
-      console.log("role: ", role)
       if (role === "Employee") {
         router.push("/employee/dashboard")
       } else if (role === "HR Manager") {
@@ -72,7 +66,7 @@ export function LoginForm() {
 
       toast({
         title: "Login successful",
-        description: `Welcome back, ${response.data.data?.user?.fullName || "User"}!`,
+        description: `Welcome back, ${response.data.data?.Employee.FullName || "User"}!`,
       })
     } catch (error) {
       toast({

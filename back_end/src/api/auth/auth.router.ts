@@ -18,7 +18,7 @@ authRouter.post('/register', AuthController.register);
 authRouter.get('/', authenticateJWT, AuthController.getAll)
 authRouter.put('/:Id', authenticateJWT, AuthController.udpate);
 authRouter.delete('/:Id', authenticateJWT, AuthController.delete)
-authRouter.post('/logout', AuthController.logout);
+authRouter.post('/logout/:id', AuthController.logout);
 
 // authRouter.get('/getme', AuthController.getMe);
 export default authRouter;

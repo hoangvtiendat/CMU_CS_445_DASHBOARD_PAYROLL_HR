@@ -27,7 +27,7 @@ import type { Salary, Employee, CreateSalaryRequest, UpdateSalaryRequest } from 
 export default function SalaryPage() {
   const { toast } = useToast()
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
-  const [selectedMonth, setSelectedMonth] = useState("June 2023")
+  const [selectedMonth, setSelectedMonth] = useState("June 2025")
   const [salaryData, setSalaryData] = useState<Salary[]>([])
   const [employees, setEmployees] = useState<Employee[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -43,6 +43,12 @@ export default function SalaryPage() {
 
   const [selectedMonthName, setSelectedMonthName] = useState("May")
   const [selectedYear, setSelectedYear] = useState("2025")
+
+
+  const isFutureDate = (dateStr: string | undefined) => {
+    if (!dateStr) return false;
+    return new Date(dateStr) > new Date();
+  };
 
   useEffect(() => {
     // const currentDate = new Date();
@@ -353,6 +359,31 @@ export default function SalaryPage() {
         })
         return
       }
+      const isValidBaseSalary = typeof Number(newSalary.BaseSalary) === 'number' && newSalary.BaseSalary > 0;
+      const isValidBonusSalary = typeof Number(newSalary.Bonus) === 'number' && Number(newSalary.Bonus) >= 0;
+      const isValidDeductionsSalary = typeof Number(newSalary.Deductions) === 'number' && Number(newSalary.Deductions) >= 0;
+      
+      console.log("isValidBaseSalary", isValidBaseSalary);
+      console.log("isValidBonusSalary", isValidBonusSalary);
+      console.log("isValidDeductionsSalary", isValidDeductionsSalary);
+
+      if (!isValidBaseSalary || !isValidBonusSalary || !isValidDeductionsSalary) {
+        toast({
+          variant: "destructive",
+          title: "Validation Error",
+          description: "Please enter salary in correct format",
+        })
+        return;
+      }
+
+      if (isFutureDate(newSalary.SalaryMonth)) {
+        toast({
+          variant: "destructive",
+          title: "Validation Error",
+          description: "Please enter a valid Salary Date",
+        });
+        return;
+      }
 
       // Calculate net salary
       const baseSalary = Number(newSalary.BaseSalary)
@@ -558,7 +589,7 @@ export default function SalaryPage() {
   // Update the DialogContent to show the employee name when editing
   return (
 
-    <DashboardLayout role="payroll" userName="Payroll Manager">
+    <DashboardLayout role="payroll" userName="Payroll">
       {/* <Button onClick={() => toast({ title: "Test toast", description: "Toast hoạt động!" })}>
         Test Toast
       </Button> */}

@@ -7,8 +7,6 @@ export const AttendanceRepository = {
     async checkin(employeeId: number): Promise<MySQLAttendance> {
         const now = new Date();
         const currentDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        console.log("currentMonth: ", currentDate)
-
         let attendance = await mysqlRepository.findOne({
             where: {
                 Employee: { EmployeeID: employeeId },
@@ -32,5 +30,11 @@ export const AttendanceRepository = {
 
         await mysqlRepository.save(attendance);
         return attendance;
-    }
+    },
+
+    async getAll(): Promise<MySQLAttendance[]> {
+        return await mysqlRepository.find({
+            relations: ['Employee'],
+        });
+    },
 };

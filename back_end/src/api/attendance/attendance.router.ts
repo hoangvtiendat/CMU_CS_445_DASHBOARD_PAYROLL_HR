@@ -10,6 +10,6 @@ const AttandanceRouter = Router();
 
 
 AttandanceRouter.post('/checkin/:id', authenticateJWT, AttendanceController.checkin);
-
+AttandanceRouter.get('/', authenticateJWT, AttendanceController.getAll);
 
 export default AttandanceRouter;

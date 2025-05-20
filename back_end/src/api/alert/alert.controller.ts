@@ -18,4 +18,22 @@ export const AlertController = {
             });
         }
     },
+
+    async sendMail(req: Request, res: Response) {
+        try {
+            const { id } = req.body;
+            const {data} = req.body;
+            if(!id){
+                throw new Error('Email is required');
+            }
+            const serviceResponse = await alertService.sendMail(id, data);
+            handleServiceResponse(serviceResponse, res);
+        } catch (error) {
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+                status: 'Failed',
+                message: 'Error send mail',
+                error: (error as Error).message,
+            });
+        }
+    }
 };

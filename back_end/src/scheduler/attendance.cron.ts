@@ -39,12 +39,11 @@ async function autoMarkAbsent() {
       CreatedAt: now,
     });
     await attendanceRepo.save(newAttendance);
-    console.log(`Marked absent for employee ${emp.EmployeeID} on ${todayStr}`);
   }
 }
 
 // Lên lịch chạy mỗi ngày lúc 23:59
-cron.schedule('49 15 * * *', () => {
+cron.schedule('55 15 * * *', () => {
   autoMarkAbsent();
   console.log('Auto mark absent executed!');
 });

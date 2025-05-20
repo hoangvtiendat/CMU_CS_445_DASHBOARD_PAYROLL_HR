@@ -1,3 +1,4 @@
+import { send } from "process"
 import type {
   ApiResponse,
   LoginRequest,
@@ -86,7 +87,7 @@ export const authApi = {
   login: (data: LoginRequest): Promise<ApiResponse<LoginResponse>> =>
     apiRequest<LoginResponse>("/auth/login", "POST", data),
 
-  logout: (): Promise<ApiResponse<null>> => apiRequest<null>("/auth/logout", "POST"),
+  logout: (id: number): Promise<ApiResponse<null>> => apiRequest<null>(`/auth/logout/${id}`, "POST"),
 
   getCurrentUser: (): Promise<ApiResponse<LoginResponse>> => apiRequest<LoginResponse>("/auth/me"),
 }
@@ -108,7 +109,7 @@ export const employeeApi = {
   updateProfile: (id: number, data: Partial<Employee>): Promise<ApiResponse<Employee>> =>
     apiRequest<Employee>(`/employees/${id}`, "PUT", data),
 
-   checkin: (id: number): Promise<ApiResponse<Employee>> =>
+  checkin: (id: number): Promise<ApiResponse<Employee>> =>
     apiRequest<Employee>(`/attendance/checkin/${id}`, "POST",),
 
 }
@@ -140,6 +141,7 @@ export const departmentApi = {
   getCount: (): Promise<ApiResponse<Department>> => apiRequest<Department>("/departments/count")
 }
 
+
 // Position APIs
 export const positionApi = {
   getAll: (): Promise<ApiResponse<Position[]>> => apiRequest<Position[]>("/positions"),
@@ -157,12 +159,18 @@ export const attendanceApi = {
 
   getByMonth: (month: string): Promise<ApiResponse<Attendance[]>> =>
     apiRequest<Attendance[]>(`/attendance?month=${month}`),
+
+  getAll: (): Promise<ApiResponse<Attendance[]>> => apiRequest<Attendance[]>("/attendance"),
+
+
+
+
 }
 
 // Alert APIs
 export const alertApi = {
   getAll: (): Promise<ApiResponse<Alert[]>> => apiRequest<Alert[]>("/alerts"),
-
+  sendMail: (id: number, data: string): Promise<ApiResponse<string>> => apiRequest<string>("/alerts/sendMail", "POST", { id, data }),
   getByType: (type: string): Promise<ApiResponse<Alert[]>> => apiRequest<Alert[]>(`/alerts?type=${type}`),
 }
 

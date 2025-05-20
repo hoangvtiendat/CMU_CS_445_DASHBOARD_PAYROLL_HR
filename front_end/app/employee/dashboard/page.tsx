@@ -104,11 +104,9 @@ export default function EmployeeDashboard() {
 
         //fetch information employee
         const informationEmployeeResponse = await employeeApi.getInformationEmployee(employeeId)
-        console.log("informationEmployee", informationEmployeeResponse)
         if (!informationEmployeeResponse.success || !informationEmployeeResponse.data) {
           throw new Error(informationEmployeeResponse.error || "Failed to fetch employee data")
         }
-        console.log("informationEmployee", informationEmployeeResponse.data)
         setInformationEmployee(informationEmployeeResponse.data.data)
 
         // Fetch employee data
@@ -118,7 +116,6 @@ export default function EmployeeDashboard() {
         }
         setEmployee(employeeResponse.data.data)
 
-        console.log("employee", employeeResponse.data.data)
 
 
         // Fetch salary data
@@ -128,7 +125,6 @@ export default function EmployeeDashboard() {
         }
 
         setSalaryData(Array.isArray(salaryResponse.data?.data) ? salaryResponse.data.data : [])
-        console.log("salaryData", salaryResponse.data?.data)
       } catch (error) {
         toast({
           variant: "destructive",
@@ -172,8 +168,8 @@ export default function EmployeeDashboard() {
       }
 
       toast({
-        title: "Profile updated",
-        description: "Your profile has been updated successfully.",
+        title: "Checkin",
+        description: "You have successfully clocked in today.",
       })
     } catch (error) {
       toast({

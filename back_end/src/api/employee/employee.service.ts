@@ -55,13 +55,11 @@ export const EmployeeService = {
     information: async (id: number): Promise<ServiceResponse<InformationEmployee | null>> => {
         try {
             const employee = await employeeRepository.findByIdAsync(id);
-            console.log("employaaaee: ", employee);
             if (!employee) {
                 throw new Error("This user does not exist")
             }
 
             const informationEmployee = await employeeRepository.getEmployeeInformation(id)
-            console.log("informationEmployee: ", informationEmployee);
             if (!informationEmployee) {
                 throw new Error("This userzz does not exist")
             }
@@ -184,7 +182,8 @@ export const EmployeeService = {
                 StatusCodes.INTERNAL_SERVER_ERROR
             );
         }
-    },
+    }
+    
 
 
 }

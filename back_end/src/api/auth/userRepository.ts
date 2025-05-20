@@ -13,6 +13,20 @@ export const userRepository = MySQLDataSource.getRepository(MySQLAccount).extend
         return this.findOneBy({ Id: id });
     },
 
+    async findByEmployeeIdAsync(id: number): Promise< any | null> {
+        const accountID =  this.createQueryBuilder('account')
+            .leftJoinAndSelect('employees', 'employee', 'account.EmployeeID = employee.EmployeeID')
+            .select([
+                'account.Id',
+            ])
+            .where('account.EmployeeID = :id', { id })
+            .getRawOne();
+
+            if(accountID){
+                return accountID;
+            }
+    },
+
     async createUserAsync(userData: Partial<MySQLAccount>): Promise<(MySQLAccount & { Employee: { EmployeeID: number; FullName: string } }) | null> {
         // Tạo người dùng mới
         const newUser = this.create(userData);
@@ -30,7 +44,7 @@ export const userRepository = MySQLDataSource.getRepository(MySQLAccount).extend
         if (!createdUser) {
             return null;
         }
-
+        
         // Trả về dữ liệu với thông tin Employee được gộp vào
         return {
             ...createdUser,
@@ -53,9 +67,9 @@ export const userRepository = MySQLDataSource.getRepository(MySQLAccount).extend
 
         return user;
     },
-    async findByEmail(email: string): Promise<MySQLAccount | null> {
-        return this.findOneBy({ Email: email })
-    },
+    // async findByEmail(email: string): Promise<MySQLAccount | null> {
+    //     return this.findOneBy({ Email: email })
+    // },
     async updateUserAsync(
         id: number,
         updateData: Partial<MySQLAccount>
@@ -69,9 +83,6 @@ export const userRepository = MySQLDataSource.getRepository(MySQLAccount).extend
             .leftJoinAndSelect('Employees', 'employee', 'account.EmployeeID = employee.EmployeeID')
             .select(['*', 'employee.FullName'])
             .getRawMany();
-
-        console.log("acc: ", accounts)
-
         return accounts;
     },
 

@@ -27,6 +27,7 @@ export interface LoginResponse {
   token: string
   Employee: {
     EmployeeID: string,
+    FullName: string,
   }
 }
 
@@ -122,12 +123,17 @@ export interface Position {
 
 // Attendance types
 export interface Attendance {
-  id: number
+  AttendanceID: number
   employeeId: number
-  workDays: number
-  absentDays: number
-  leaveDays: number
-  attendanceMonth: string
+  WorkDays: number
+  AbsentDays: number
+  LeaveDays: number
+  AttendanceMonth: string
+  Employee: {
+    EmployeeID: number
+    FullName: string
+    Status: string
+  }
 }
 
 // Alert types
@@ -137,6 +143,7 @@ export interface Alert {
   message: string
   date: string
   priority: string
+  employeeID: number
 }
 
 // Account types
@@ -160,7 +167,7 @@ export interface CreateAccountRequest {
 }
 
 export interface UpdateAccountRequest {
-  Id: number
+  Id: number  
   Username?: string
   Password?: string
   Email?: string

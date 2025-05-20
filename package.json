@@ -12,6 +12,7 @@
     "mssql": "^11.0.1",
     "mysql2": "^3.14.0",
     "node-cron": "^4.0.5",
+    "nodemailer": "^7.0.3",
     "passport": "^0.7.0",
     "reflect-metadata": "^0.2.2",
     "sonner": "^2.0.3",
@@ -21,6 +22,7 @@
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
+    "@types/nodemailer": "^6.4.17",
     "@types/passport": "^1.0.17"
   }
 }

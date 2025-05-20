@@ -55,9 +55,8 @@ export const employeeRepository = {
             .where('salaries.EmployeeID = :id', { id })
             .orderBy('salaries.SalaryMonth', 'DESC') // Lấy lần thanh toán gần nhất
             .getRawOne();
-        console.log("baseSalary: ", baseSalary);
         if (!baseSalary.baseSalary) {
-            baseSalary = 0; 
+            baseSalary = 0;
         }
         // Lấy NetSalary của lần thanh toán gần nhất từ bảng salaries
         let lastPaymentResult = await salaryRepository
@@ -157,23 +156,23 @@ export const employeeRepository = {
             .groupBy('name.DepartmentName')
             .getRawMany();
 
-        const mysqlEmployeeByDepartment = await mysqlRepository
-            .createQueryBuilder('employee')
-            .leftJoin('employee.Department', 'name')
-            .select('name.DepartmentName', 'name')
-            .addSelect('COUNT(employee.EmployeeID)', 'value')
-            .groupBy('name.DepartmentName')
-            .getRawMany();
+        // const mysqlEmployeeByDepartment = await mysqlRepository
+        //     .createQueryBuilder('employee')
+        //     .leftJoin('employee.Department', 'name')
+        //     .select('name.DepartmentName', 'name')
+        //     .addSelect('COUNT(employee.EmployeeID)', 'value')
+        //     .groupBy('name.DepartmentName')
+        //     .getRawMany();
 
-        const mergedEmployeeByDepartment = [...mssqlEmployeeByDepartment, ...mysqlEmployeeByDepartment].reduce((acc: { name: string, value: number }[], curr: { name: string, value: number }) => {
-            const existing = acc.find((item: { name: string, value: number }) => item.name === curr.name);
-            if (existing) {
-                existing.value += Number(curr.value);
-            } else {
-                acc.push({ ...curr, value: Number(curr.value) });
-            }
-            return acc;
-        }, []);
+        // const mergedEmployeeByDepartment = [...mssqlEmployeeByDepartment, ...mysqlEmployeeByDepartment].reduce((acc: { name: string, value: number }[], curr: { name: string, value: number }) => {
+        //     const existing = acc.find((item: { name: string, value: number }) => item.name === curr.name);
+        //     if (existing) {
+        //         existing.value += Number(curr.value);
+        //     } else {
+        //         acc.push({ ...curr, value: Number(curr.value) });
+        //     }
+        //     return acc;
+        // }, []);
 
         const mssqlEmployeeByPosition = await mssqlRepository
             .createQueryBuilder('employee')
@@ -183,23 +182,23 @@ export const employeeRepository = {
             .groupBy('name.PositionName')
             .getRawMany();
 
-        const mysqlEmployeeByPosition = await mysqlRepository // Corrected from mssqlRepository to mysqlRepository
-            .createQueryBuilder('employee')
-            .leftJoin('employee.Position', 'name')
-            .select('name.PositionName', 'name')
-            .addSelect('COUNT(employee.EmployeeID)', 'value')
-            .groupBy('name.PositionName')
-            .getRawMany();
+        // const mysqlEmployeeByPosition = await mysqlRepository // Corrected from mssqlRepository to mysqlRepository
+        //     .createQueryBuilder('employee')
+        //     .leftJoin('employee.Position', 'name')
+        //     .select('name.PositionName', 'name')
+        //     .addSelect('COUNT(employee.EmployeeID)', 'value')
+        //     .groupBy('name.PositionName')
+        //     .getRawMany();
 
-        const mergedEmployeeByPosition = [...mssqlEmployeeByPosition, ...mysqlEmployeeByPosition].reduce((acc: { name: string, value: number }[], curr: { name: string, value: number }) => {
-            const existing = acc.find((item: { name: string, value: number }) => item.name === curr.name);
-            if (existing) {
-                existing.value += Number(curr.value);
-            } else {
-                acc.push({ ...curr, value: Number(curr.value) });
-            }
-            return acc;
-        }, []);
+        // const mergedEmployeeByPosition = [...mssqlEmployeeByPosition, ...mysqlEmployeeByPosition].reduce((acc: { name: string, value: number }[], curr: { name: string, value: number }) => {
+        //     const existing = acc.find((item: { name: string, value: number }) => item.name === curr.name);
+        //     if (existing) {
+        //         existing.value += Number(curr.value);
+        //     } else {
+        //         acc.push({ ...curr, value: Number(curr.value) });
+        //     }
+        //     return acc;
+        // }, []);
 
         // Get Employee by Status
         const mssqlEmployeeByStatus = await mssqlRepository
@@ -209,28 +208,28 @@ export const employeeRepository = {
             .groupBy('employee.Status')
             .getRawMany();
 
-        const mysqlEmployeeByStatus = await mysqlRepository
-            .createQueryBuilder('employee')
-            .select('employee.Status', 'status')
-            .addSelect('COUNT(employee.EmployeeID)', 'value')
-            .groupBy('employee.Status')
-            .getRawMany();
+        // const mysqlEmployeeByStatus = await mysqlRepository
+        //     .createQueryBuilder('employee')
+        //     .select('employee.Status', 'status')
+        //     .addSelect('COUNT(employee.EmployeeID)', 'value')
+        //     .groupBy('employee.Status')
+        //     .getRawMany();
 
-        const mergedEmployeeByStatus = [...mssqlEmployeeByStatus, ...mysqlEmployeeByStatus].reduce((acc: { status: string, value: number }[], curr: { status: string, value: number }) => {
-            const existing = acc.find((item: { status: string, value: number }) => item.status === curr.status);
-            if (existing) {
-                existing.value += Number(curr.value);
-            } else {
-                acc.push({ ...curr, value: Number(curr.value) });
-            }
-            return acc;
-        }, []);
+        // const mergedEmployeeByStatus = [...mssqlEmployeeByStatus, ...mysqlEmployeeByStatus].reduce((acc: { status: string, value: number }[], curr: { status: string, value: number }) => {
+        //     const existing = acc.find((item: { status: string, value: number }) => item.status === curr.status);
+        //     if (existing) {
+        //         existing.value += Number(curr.value);
+        //     } else {
+        //         acc.push({ ...curr, value: Number(curr.value) });
+        //     }
+        //     return acc;
+        // }, []);
 
         return {
             totalEmployees,
-            employeesByDepartment: mergedEmployeeByDepartment,
-            employeesByPosition: mergedEmployeeByPosition,
-            employeesByStatus: mergedEmployeeByStatus
+            employeesByDepartment: mssqlEmployeeByDepartment,
+            employeesByPosition: mssqlEmployeeByPosition,
+            employeesByStatus: mssqlEmployeeByStatus
         };
 
     },
@@ -255,9 +254,27 @@ export const employeeRepository = {
 
 
         return 1;
+    },
+
+    async getCountDepartment(): Promise<number | null> {
+        const mssqlDepartment = await mssqlRepository
+            .createQueryBuilder('employee')
+            .select('COUNT(DISTINCT employee.DepartmentID)', 'count')
+            .getRawOne();
+
+        if (!mssqlDepartment) {
+            return null;
+        }
+        return Number(mssqlDepartment.count);
+    },
+
+    async findEmailById(id: number) : Promise<string | null> {
+        const employee = await mssqlRepository.findOneBy({ EmployeeID: id });
+        if (!employee) {
+            throw new Error("This user does not exist")
+        }
+        return employee.Email;
     }
-
-
 
 
 

@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { StatCard } from "@/components/stat-card"
 import { Users, Building2, BellRing } from "lucide-react"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts"
-import { dashboardApi, alertApi } from "@/lib/api"
+import { dashboardApi, alertApi, employeeApi } from "@/lib/api"
 import type { EmployeeStats, PayrollStats, Alert } from "@/lib/api-types"
 import { useToast } from "@/components/ui/use-toast"
 import { useRouter } from "next/navigation"
@@ -25,13 +25,8 @@ export default function AdminDashboard() {
   const router = useRouter()
 
   useEffect(() => {
-    // const token = localStorage.getItem("token")  // Lấy token từ localStorage
-    // const role = localStorage.getItem("role")  // Lấy role từ localStorage (nếu đã lưu)
 
-    // if (!token || role !== "Admin") {
-    //   router.push("/login")  // Nếu không có token hoặc role không phải Admin, chuyển hướng về trang login
-    //   return
-    // }
+
     const fetchData = async () => {
       setIsLoading(true)
       try {
@@ -44,8 +39,6 @@ export default function AdminDashboard() {
 
         // Fetch payroll stats
         const payrollStatsResponse = await dashboardApi.getPayrollStats()
-        console.log("payrollStatsResponse: ", payrollStatsResponse.data.data)
-
         if (!payrollStatsResponse.success || !payrollStatsResponse.data) {
           throw new Error(payrollStatsResponse.error || "Failed to fetch payroll statistics")
         }
@@ -61,6 +54,13 @@ export default function AdminDashboard() {
         } else {
           setAlerts([]);
         }
+
+        // Fetch employee stats
+        const statsResponse = await employeeApi.status()
+        if (!statsResponse.success || !statsResponse.data) {
+          throw new Error(statsResponse.error || "Failed to fetch employee statistics")
+        }
+        setStats(statsResponse.data.data)
 
       } catch (error) {
         toast({
@@ -142,29 +142,29 @@ export default function AdminDashboard() {
         //   ],
         // })
 
-        setAlerts([
-          {
-            id: 1,
-            type: "Anniversary",
-            message: "Jane Smith's 5-year work anniversary is coming up next week.",
-            date: "2023-07-15",
-            priority: "medium",
-          },
-          {
-            id: 2,
-            type: "Leave",
-            message: "John Doe has taken more than 2 days of leave this month.",
-            date: "2023-07-10",
-            priority: "high",
-          },
-          {
-            id: 3,
-            type: "Leave",
-            message: "Sarah Johnson has requested 5 days of leave starting next Monday.",
-            date: "2023-07-08",
-            priority: "medium",
-          },
-        ])
+        // setAlerts([
+        //   {
+        //     id: 1,
+        //     type: "Anniversary",
+        //     message: "Jane Smith's 5-year work anniversary is coming up next week.",
+        //     date: "2023-07-15",
+        //     priority: "medium",
+        //   },
+        //   {
+        //     id: 2,
+        //     type: "Leave",
+        //     message: "John Doe has taken more than 2 days of leave this month.",
+        //     date: "2023-07-10",
+        //     priority: "high",
+        //   },
+        //   {
+        //     id: 3,
+        //     type: "Leave",
+        //     message: "Sarah Johnson has requested 5 days of leave starting next Monday.",
+        //     date: "2023-07-08",
+        //     priority: "medium",
+        //   },
+        // ])
       } finally {
         setIsLoading(false)
       }
@@ -344,7 +344,7 @@ export default function AdminDashboard() {
                           {new Date(alert.date).toLocaleDateString()}
                         </span>
                       </div>
-                      <p className="mt-1 text-sm"dangerouslySetInnerHTML={{ __html: alert.message }}></p>
+                      <p className="mt-1 text-sm" dangerouslySetInnerHTML={{ __html: alert.message }}></p>
                     </div>
                   </div>
                 ))

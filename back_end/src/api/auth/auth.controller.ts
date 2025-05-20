@@ -88,14 +88,8 @@ export const AuthController = {
 
   async logout(req: Request, res: Response) {
     try {
-      // Lấy token từ header Authorization
-      const authHeader = req.headers.authorization;
-      if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        throw new Error('No token provided');
-      }
-      const token = authHeader.split(' ')[1];
-      // Gọi service để xử lý logout (ví dụ: blacklist token, xóa session, ...)
-      const serviceResponse = await authService.logout(token);
+      const id = Number(req.params.id);
+      const serviceResponse = await authService.logout(id);
       handleServiceResponse(serviceResponse, res);
     } catch (error) {
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({

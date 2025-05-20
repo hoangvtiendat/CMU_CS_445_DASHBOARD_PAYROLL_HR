@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { BarChart3, Users, BellRing, Wallet, UserCog, Home, Menu } from "lucide-react"
+import { BarChart3, Users, BellRing, Wallet, UserCog, Home, Menu, Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -94,6 +94,21 @@ export function Sidebar({ role }: SidebarProps) {
       href: "/admin/accounts",
       active: pathname === "/admin/accounts",
       roles: ["admin"],
+    },
+    {
+      label: "Attendance",
+      icon: Check,
+      href: "/admin/attendance",
+      active: pathname === "/admin/attendance",
+      roles: ["admin"],
+    },
+
+    {
+      label: "Attendance",
+      icon: Check,
+      href: "/hr/attendance",
+      active: pathname === "/hr/attendance",
+      roles: ["hr"],
     },
   ]
 

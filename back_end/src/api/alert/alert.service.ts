@@ -1,4 +1,5 @@
 import { AlertRepository } from './alertRepository';
+import { employeeRepository } from '../employee/employeeRepository';
 import { IAlert } from './alert.interface';
 import {
     ServiceResponse,
@@ -14,9 +15,7 @@ import { get } from 'http';
 export const alertService = {
     getAll: async (): Promise<ServiceResponse<IAlert[] | null>> => {
         try {
-            console.log(1);
             const alerts = await AlertRepository.getAll();
-            console.log(2);
             if (!alerts) {
                 return new ServiceResponse(
                     ResponseStatus.Failed,
@@ -34,6 +33,38 @@ export const alertService = {
         } catch (error) {
             const errorMessage = `Error retrieving alerts: ${(error as Error).message}`;
             return new ServiceResponse<IAlert[] | null>(
+                ResponseStatus.Failed,
+                errorMessage,
+                null,
+                StatusCodes.INTERNAL_SERVER_ERROR
+            );
+        }
+    },
+
+    sendMail: async (id: number, data: string): Promise<ServiceResponse<string | null>> => {
+        try {
+            const email = await employeeRepository.findEmailById(id);
+            if(!email) {
+                throw new Error('Email is required');
+            }
+            const mailIsSent = await AlertRepository.sendMail(email, data);
+            if (!mailIsSent) {
+                return new ServiceResponse(
+                    ResponseStatus.Failed,
+                    'Failed to send email',
+                    "Send main successfully",
+                    StatusCodes.INTERNAL_SERVER_ERROR
+                );
+            }
+            return new ServiceResponse<string | null>(
+                ResponseStatus.Success,
+                'Email sent successfully',
+                null,
+                StatusCodes.OK
+            );
+        } catch (error) {
+            const errorMessage = `Error sending email: ${(error as Error).message}`;
+            return new ServiceResponse<string | null>(
                 ResponseStatus.Failed,
                 errorMessage,
                 null,
